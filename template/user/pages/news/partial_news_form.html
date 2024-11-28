@@ -1,0 +1,186 @@
+<div id="app">
+  <form id="form_news" ref="form" action="{{ action }}" enctype="multipart/form-data" class="form-horizontal form-bordered" method="post">
+    <input ref="content" name="content" type="hidden">
+    <div  class="card-body">
+      <div class="form-group row pb-3">
+        <label class="col-lg-2 control-label text-lg-right pt-2" for="cover-image">
+          封面<span class="text-danger ms-2">*</span><br/>建議尺寸 (800X500)
+        </label>
+        <div class="col-lg-6">
+          <img id="cover-image" src="{{ news.cover_image if news.cover_image else '/static/general/images/default_cover.jpg' }}" class="img-fluid" style="max-width: 300px; max-height: 300px;">
+        </div>
+        <div class="col-4">
+          <div class="fileupload fileupload-new" data-provides="fileupload">
+            <div class="input-append">
+              <div class="uneditable-input">
+                <i class="fas fa-file fileupload-exists"></i>
+                <span class="fileupload-preview"></span>
+              </div>
+              <span class="btn btn-default btn-file">
+                <span class="fileupload-exists">變更</span>
+                <span class="fileupload-new">選擇檔案</span>
+                <input name="cover_image" type="file" onchange="document.getElementById('cover-image').src = window.URL.createObjectURL(this.files[0])"/>
+              </span>
+              <a href="#" class="btn btn-default fileupload-exists" data-dismiss="fileupload">移除</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row pb-3">
+        <label class="col-lg-2 control-label text-lg-right pt-2" for="title">標題<span class="text-danger ms-2">*</span></label>
+        <div class="col-lg-10">
+          <input id="title" name="title" value="{{ news.title if news.title else '' }}" placeholder="標題" class="form-control" data-plugin-maxlength required min="1" maxlength="30">
+        </div>
+      </div>
+      <div class="form-group row pb-3">
+        <label class="col-lg-2 control-label text-lg-right pt-2" for="description">描述<span class="text-danger ms-2">*</span></label>
+        <div class="col-lg-10">
+          <textarea id="description" name="description" placeholder="描述" class="form-control" rows="5" required minlength="1" data-plugin-maxlength maxlength="40" >{{ news.description if news.description else '' }}</textarea>
+        </div>
+      </div>
+      <div class="form-group row pb-3">
+          <label class="col-lg-2 control-label text-lg-right pt-2" for="status">狀態</label>
+          <div class="col-lg-4">
+              <select name="status" class="form-control">
+                  <option value="NORMAL" {{ 'selected' if news.status.name == 'NORMAL' else '' }}>發布</option>
+                  <option value="SUSPENDED" {{ 'selected' if news.status.name == 'SUSPENDED' else '' }}>尚未發布</option>
+              </select>
+          </div>
+          <label class="col-lg-2 control-label text-lg-right pt-2" for="line_keyword">回覆關鍵字</label>
+          <div class="col-lg-4">
+              <input id="line_keyword" name="line_keyword" value="{{ news.line_keyword if news.line_keyword else '' }}" placeholder="回覆關鍵字" class="form-control" data-plugin-maxlength maxlength="100">
+          </div>
+      </div>
+      <div class="form-group row pb-3">
+        <label class="col-lg-2 control-label text-lg-right pt-2" for="display_date">顯示日期</label>
+        <div class="col-lg-4">
+          <input id="display_date" name="display_date" value="{{ news.display_date if news.display_date else today }}" autocomplete="off" class="form-control" data-plugin-datepicker data-plugin-options='{"format": "yyyy-mm-dd"}'>
+        </div>
+        <label class="col-lg-2 control-label text-lg-right pt-2" for="flag_top">是否至頂</label>
+        <div class="col-lg-4">
+          <select id="flag_top" name="flag_top" class="form-control">
+            <option value="0" {{ 'selected' if news.flag_top == 0 else '' }}>不至頂</option>
+            <option value="1" {{ 'selected' if news.flag_top == 1 else '' }}>至頂</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group row pb-3">
+          <label class="col-lg-2 control-label text-lg-right pt-2" for="display_date">可查看身分</label>
+          <div class="col-lg-2">
+              <div class="switch switch-primary">訪客<input type="checkbox" name="flag_visitor" value="1" {{ 'checked' if news.flag_visitor }} data-plugin-ios-switch/></div>
+          </div>
+          <div class="col-lg-2">
+              <div class="switch switch-primary">會員<input type="checkbox" name="flag_member" value="1" {{ 'checked' if news.flag_member }} data-plugin-ios-switch/></div>
+          </div>
+      </div>
+      <div class="form-group row pb-3">
+        <label class="col-lg-2 control-label text-lg-right pt-2" for="content"></label>
+        <div class="col-10">
+          <input type="file" ref="file" @change="previewImage" style="display: none" accept="image/png, image/jpeg, image/jpg">
+          <div v-for="(fragment, index) in fragmentList" :key="index" class="form-group row">
+            <div class="col-3">
+              <select class="form-control" v-model="fragmentList[index].type">
+                <option value="TEXT">文字</option>
+                <option value="IMAGE">圖片</option>
+              </select>
+              <div class="mt-1"><button type="button" @click="deleteFragment(index)" class="btn btn-danger btn-block">刪除</button></div>
+            </div>
+            <div class="col-9">
+              <textarea v-show="fragmentList[index].type === 'TEXT'" v-model="fragmentList[index].content" class="form-control" rows="5"></textarea>
+              <img class="img-fluid" v-show="fragmentList[index].type === 'IMAGE'" :src="imageUrl(index)" @click="chooseImage(index)" style="cursor: pointer; max-height: 200px;">
+            </div>
+          </div>
+          <button type="button" class="btn mt-3" @click="addFragment" v-show="fragmentList.length < 5"><i class="fas fa-plus" style="font-size: 2rem;color: black;"></i></button>
+        </div>
+      </div>
+    </div>
+    <footer class="card-footer text-left mb-5">
+      <label class="col-lg-2"></label>
+      <button @click="save" type="button" class="btn btn-primary">儲存</button>
+    </footer>
+  </form>
+</div>
+
+<script src="/static/vendor/vue2/2.7.8/vue.js"></script>
+<script src="/static/vendor/axios/0.27.2/axios.min.js"></script>
+<script src="/static/vendor/jquery-loading-overlay/2.1.7/loadingoverlay.js"></script>
+
+<link rel="stylesheet" href="/static/vendor/jquery-ui-timepicker/jquery-ui-timepicker-addon.css"/>
+<script src="/static/vendor/jquery-ui-timepicker/jquery-ui-timepicker-addon.js"></script>
+<script src="/static/vendor/jquery-ui-timepicker/i18n/jquery-ui-timepicker-addon-i18n.js"></script>
+<script src="/static/vendor/jquery-ui-timepicker/jquery-ui-sliderAccess.js"></script>
+
+<script type="application/javascript">
+    (function ($) {
+
+        let vue = new Vue({
+            el: "#app",
+            delimiters: ['<%', '%>'],
+            data: {
+                targetFragmentIndex: 0,
+                fragmentList: JSON.parse({{ fragmentList | safe }})
+            },
+            watch: {
+
+            },
+            computed: {
+
+            },
+            methods: {
+                addFragment: function () {
+                    this.fragmentList.push({'id': '', 'type': 'TEXT', 'content': ''});
+                },
+                deleteFragment: function (index) {
+                    let fragmentList = this.fragmentList;
+                    fragmentList.splice(index, 1);
+                    this.fragmentList = fragmentList;
+                },
+                chooseImage: function (index) {
+                    this.targetFragmentIndex = index;
+                    this.$refs.file.click();
+                },
+                previewImage: function () {
+                    console.log('previewImage');
+                    let self = this;
+                    let reader = new FileReader();
+                    reader.readAsDataURL(this.$refs.file.files[0]);
+                    reader.onload = function () {
+                        console.log(reader.result);
+                        self.fragmentList[self.targetFragmentIndex].content = reader.result;
+                    };
+                },
+                imageUrl: function (index) {
+                    if(this.fragmentList[index].type === 'IMAGE' && this.fragmentList[index].content.startsWith('/upload_public')) {
+                        return this.fragmentList[index].content;
+                    } else if(this.fragmentList[index].type === 'IMAGE' && this.fragmentList[index].content.startsWith('data:')) {
+                        return this.fragmentList[index].content;
+                    }
+                    return '/static/general/images/default_cover.jpg';
+                },
+                save: function () {
+                    let title = $('#title').val().trim();
+                    let description = $('#description').val().trim();
+                    let image_src = $('#cover-image').attr('src');
+                    if(title.length === 0 || title.length > 30){
+                        notify_error('請輸入30字以內標題');
+                        return;
+                    }
+                    if(description.length ===0 || description.length > 40) {
+                        notify_error('請輸入40字以內描述');
+                        return;
+                    }
+                    if (image_src === '/static/general/images/default_cover.jpg') {
+                        notify_error('請上傳封面');
+                        return;
+                    }
+                    $.LoadingOverlay("show");
+                    this.$refs.content.value = JSON.stringify(this.fragmentList);
+                    this.$refs.form.submit();
+                }
+            },
+            components: {}
+        });
+
+    }).apply(this, [jQuery]);<!-- End-Document_Ready -->
+</script>
+

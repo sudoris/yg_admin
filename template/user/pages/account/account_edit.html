@@ -1,0 +1,290 @@
+
+{% set active_menu = 'account' %}
+{% extends "user/basic_layout/user_basic_layout.html" %}
+
+
+{% block js_script %}
+<script type="application/javascript">
+    (function($) {
+        'use strict';
+        let current_url = window.location.href;
+        let url = new URL(current_url);
+        let result = url.searchParams.get('result');
+        let message = url.searchParams.get('message');
+        if(result) {
+            make_success_notify(message);
+        } else {
+            notify_error(message);
+        }
+    }).apply(this, [jQuery]);
+</script>
+{% endblock %}
+
+
+{% block header_meta %}
+    <title>新增權限管理</title>
+{% endblock %}
+
+
+{% block content %}
+<section id="app" role="main" class="content-body">
+<header class="page-header">
+    <h2>新增權限管理</h2>
+    <div class="right-wrapper text-end">
+      <ol class="breadcrumbs">
+        <li>
+          <a href="/index">
+            <i class="bx bx-home-alt"></i>
+          </a>
+        </li>
+        <li><span><a href="/dashboard/user/account/list">查詢權限管理</a></span></li>
+        <li><span>新增權限管理</span></li>
+      </ol>
+      <a class="sidebar-right-toggle"></a>
+    </div>
+  </header>
+
+  <div class="row">
+    <div class="col">
+      <section class="card card-featured card-featured-primary">
+        <header class="card-header">
+          <h2 class="card-title text-center font-weight-bold">新增權限管理</h2>
+        </header>
+        <!-- Card Body -->
+        <div class="card-body">
+          <!-- Row -->
+          <div class="form-group row pb-3">
+            <label class="col-lg-2 control-label text-lg-right pt-2">姓名</label>
+            <div class="col-lg-4">
+              <input v-model="user.name" placeholder="姓名" class="form-control form-control-sm" :class="(alert.name) ? 'is-invalid' : '' " autocomplete="off">
+              <div v-if="alert.name" class="invalid-feedback"><% alert.name %></div>
+            </div>
+            <label class="col-lg-2 control-label text-lg-right pt-2">帳號狀態</label>
+            <div class="col-lg-4">
+              <select v-model="user.status" class="form-control form-control-sm" :class="(alert.status) ? 'is-invalid' : '' ">
+                <option value="" disabled="" selected>請選擇在職情況</option>
+                <option value="NORMAL">正常</option>
+                <option value="SUSPENDED">停權</option>
+              </select>
+              <div v-if="alert.status" class="text-danger"><% alert.status %></div>
+            </div>
+          </div>
+          <!-- Row -->
+          <div class="form-group row pb-3">
+            <label class="col-lg-2 control-label text-lg-right pt-2">Email</label>
+            <div class="col-lg-10">
+              <input v-model="user.email" placeholder="Email" class="form-control form-control-sm" autocomplete="off">
+            </div>
+          </div>
+          <!-- Row -->
+          <div class="form-group row pb-3">
+            <label class="col-lg-2 control-label text-lg-right pt-2">帳號</label>
+            <div class="col-lg-4">
+              <input v-model="user.account" placeholder="帳號" class="form-control form-control-sm" :class="(alert.account) ? 'is-invalid' : '' " autocomplete="off" :disabled="user.id">
+              <div v-if="alert.account" class="text-danger"><% alert.account %></div>
+            </div>
+            <label class="col-lg-2 control-label text-lg-right pt-2">密碼 <span v-show="user.id">(輸入以更新密碼，如果不更新密碼請留白)</span></label>
+            <div class="col-lg-4">
+              <input v-model="user.password" placeholder="密碼" type="password" class="form-control form-control-sm" :class="(alert.password) ? 'is-invalid' : '' ">
+              <div v-if="alert.password" class="text-danger"><% alert.password %></div>
+            </div>
+          </div>
+          <!-- Row -->
+          <div class="form-group row pb-3">
+            <label class="col-lg-2 control-label text-lg-right pt-2">權限設定</label>
+            <div class="col-lg-10">
+              <div class="row">
+                <div class="col-3">
+                  <span style="width:100px;display: inline-block;">Line訪客</span>
+                  <div class="switch switch-sm switch-primary">
+                    <input v-model="user.privilege_list" type="checkbox" value="101" data-plugin-ios-switch/>
+                  </div>
+                </div>
+                <div class="col-3">
+                  <span style="width:100px;display: inline-block;">會員中心</span>
+                  <div class="switch switch-sm switch-primary">
+                    <input v-model="user.privilege_list" type="checkbox" value="110" data-plugin-ios-switch/>
+                  </div>
+                </div>
+                <div class="col-3">
+                  <span style="width:100px;display: inline-block;">最新消息管理</span>
+                  <div class="switch switch-sm switch-primary">
+                    <input v-model="user.privilege_list" type="checkbox" value="200" data-plugin-ios-switch/>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Row -->
+          <div class="form-group row pb-3">
+              <label class="col-lg-2 control-label text-lg-right pt-2"></label>
+              <div class="col-lg-10">
+                  <div class="row">
+                      <div class="col-3">
+                          <span style="width:100px;display: inline-block;">報名活動管理</span>
+                          <div class="switch switch-sm switch-primary">
+                              <input v-model="user.privilege_list" type="checkbox" value="300" data-plugin-ios-switch/>
+                          </div>
+                      </div>
+                      <div class="col-3">
+                          <span style="width:100px;display: inline-block;">精品管理</span>
+                          <div class="switch switch-sm switch-primary">
+                              <input v-model="user.privilege_list" type="checkbox" value="400" data-plugin-ios-switch/>
+                          </div>
+                      </div>
+                      <div class="col-3">
+                          <span style="width:100px;display: inline-block;">訂單管理</span>
+                          <div class="switch switch-sm switch-primary">
+                              <input v-model="user.privilege_list" type="checkbox" value="410" data-plugin-ios-switch/>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <!-- Row -->
+            <div class="form-group row pb-3">
+                <label class="col-lg-2 control-label text-lg-right pt-2"></label>
+                <div class="col-lg-10">
+                    <div class="row">
+                        <div class="col-3">
+                            <span style="width:100px;display: inline-block;">輪播圖片管理</span>
+                            <div class="switch switch-sm switch-primary">
+                                <input v-model="user.privilege_list" type="checkbox" value="420" data-plugin-ios-switch/>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <span style="width:100px;display: inline-block;">會員卡管理</span>
+                            <div class="switch switch-sm switch-primary">
+                                <input v-model="user.privilege_list" type="checkbox" value="510" data-plugin-ios-switch/>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <span style="width:100px;display: inline-block;">LOG管理</span>
+                            <div class="switch switch-sm switch-primary">
+                                <input v-model="user.privilege_list" type="checkbox" value="520" data-plugin-ios-switch/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          <!-- Row -->
+            <div class="form-group row pb-3">
+                <label class="col-lg-2 control-label text-lg-right pt-2"></label>
+                <div class="col-lg-10">
+                    <div class="row">
+                        <div class="col-3">
+                            <span style="width:100px;display: inline-block;">權限管理</span>
+                            <div class="switch switch-sm switch-primary">
+                                <input v-model="user.privilege_list" type="checkbox" value="600" data-plugin-ios-switch/>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <span style="width:100px;display: inline-block;">系統管理員</span>
+                            <div class="switch switch-sm switch-primary">
+                                <input v-model="user.privilege_list" type="checkbox" value="999" data-plugin-ios-switch/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Card Footer -->
+        <footer class="card-footer text-left mb-5">
+          <label class="col-lg-2"></label>
+          <button @click="saveOrUpdate" type="button" class="btn btn-primary">儲存</button>
+        </footer>
+      </section>
+    </div>
+  </div>
+</section>
+<script src="/static/vendor/vue2/2.7.8/vue.js"></script>
+<script src="/static/vendor/axios/0.27.2/axios.min.js"></script>
+<script src="/static/vendor/jquery-loading-overlay/2.1.7/loadingoverlay.js"></script>
+
+<link rel="stylesheet" href="/static/vendor/vue2-datepicker/3.11.0/index.css"/>
+<script src="/static/vendor/vue2-datepicker/3.11.0/index.js"></script>
+<script src="/static/vendor/vue2-datepicker/3.11.0/locale/zh-tw.js"></script>
+
+<script type="application/javascript">
+(function($) {
+    'use strict';
+    Vue.use(DatePicker);
+    let vue = new Vue({
+        el: "#app",
+        delimiters: ['<%', '%>'],
+        data: {
+            config: {
+                datePicker: {
+                    class: 'form-control form-control-sm',
+                    type: 'date',
+                    format: 'YYYY-MM-DD',
+                    valueType: 'YYYY-MM-DD'
+                }
+            },
+            user: JSON.parse('{{ user | safe }}'),
+            alert: {}
+        },
+        mounted: function () {
+
+        },
+        created: function () {
+        },
+        watch: {
+
+        },
+        computed: {
+
+        },
+        methods: {
+            saveOrUpdate: function () {
+                let self = this;
+                let user = this.user;
+
+                self.alert = {};
+                let pass = true;
+
+                if(!user.status) {
+                    self.alert.status = '請選擇在職情況';
+                    pass = false
+                }
+
+                if(!user.name) {
+                    self.alert.name = '請輸入姓名';
+                    pass = false
+                }
+
+                if(!user.account) {
+                    self.alert.account = '請輸入帳號';
+                    pass = false
+                }
+
+                if(!user.id && !user.password) {
+                    self.alert.password = '請輸入密碼';
+                    pass = false
+                }
+
+                console.log('pass: ' + pass)
+                console.log(self.alert);
+                if(!pass) {
+                    notify_error('請完成必填欄位');
+                    return;
+                }
+
+                $.LoadingOverlay("show");
+                let url = '/dashboard/user/account/ajax-save-account';
+                axios.post(url, {'user': user}).then(function (response) {
+                    console.log(response.data);
+                    $.LoadingOverlay("hide");
+                    if(response.data.result) {
+                        self.$set(self, 'user', response.data.user);
+                        notify_success(response.data.message);
+                    } else {
+                        notify_error(response.data.message);
+                    }
+                });
+            }
+        }
+    });
+}).apply(this, [jQuery]);
+</script>
+{% endblock %}

@@ -1,0 +1,234 @@
+{% set active_menu = 'event' %}
+{% extends "user/basic_layout/user_basic_layout.html" %}
+
+
+{% block js_script %}
+<script src="/static/vendor/axios/axios.min.js"></script>
+<script type="application/javascript">
+    (function($) {
+        'use strict';
+        let current_url = window.location.href;
+        let url = new URL(current_url);
+        let result = url.searchParams.get('result');
+        let message = url.searchParams.get('message');
+        if(result) {
+            make_success_notify(message);
+        } else {
+            notify_error(message);
+        }
+    }).apply(this, [jQuery]);
+</script>
+<style>
+i.fa, i.fas {
+    width: 1.2em;
+    text-align: center;
+    height: 1.2em;
+    vertical-align: middle;
+}
+</style>
+{% endblock %}
+
+
+{% block header_meta %}
+    <title>活動報名列表</title>
+{% endblock %}
+
+
+{% block breadcrumbs %}
+    <header class="page-header">
+        <h2>活動報名列表</h2>
+        <div class="right-wrapper text-end">
+            <ol class="breadcrumbs">
+                <li>
+                    <a href="/dashboard/user/index">
+                        <i class="fa fa-home"></i>
+                    </a>
+                </li>
+                <li><span>活動報名列表</span></li>
+            </ol>
+            <a class="sidebar-right-toggle"></a>
+        </div>
+    </header>
+{% endblock %}
+
+
+{% block content %}
+    <div class="row">
+        <div class="col-12">
+            <h1>{{ event.title }}</h1>
+        </div>
+        <div class="col-12">
+            <section class="card card-featured card-featured-primary">
+                <header class="card-header">
+                    <h2 class="card-title text-center font-weight-bold">活動報名列表</h2>
+                </header>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-responsive-md table-hover mb-0">
+                            <thead>
+                            <tr class="">
+                                <th class="" style="width: 10%;">#</th>
+                                <th class="" style="width: 10%;">姓名</th>
+                                <th class="" style="width: 15%;">聯絡方式</th>
+                                <th class="" style="width: 5%;">報名人數</th>
+                                <th class="" style="width: 20%;">備註</th>
+                                <th class="" style="width: 5%;">身份</th>
+                                <th class="" style="width: 10%;">報名狀態</th>
+                                <th class="" style="width: 10%;">報名時間</th>
+                                <th class="">操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% set success_result = "<i class='fa fa-check btn-success' aria-hidden='true'></i>" %}
+                            {% set fail_result = "<i class='fa fa-times btn-danger' aria-hidden='true'></i>" %}
+                            {% for register in register_list %}
+                                <tr class="">
+                                    <td class="">{{ loop.index }}</td>
+                                    <td class="">
+                                        <button class="btn btn-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#register-{{ register['id'] }}" aria-expanded="false" aria-controls="register-{{ register['id'] }}" style="font-size: 6px;font-weight: bold;padding: 0.2rem 0.4rem;margin-right: 6px;">+</button>
+                                        {{ register.name }}
+                                    </td>
+                                    <td class="">{{ register.contact }}</td>{# 聯絡方式 #}
+                                    <td class="">{{ register.amount }}</td> {# 報名人數 #}
+                                    <td>{{ register.notes }}</td> {# 備註 #}
+                                    <td>
+                                        {# 身份 #}
+                                        {% set role = '訪客' %}
+                                        {% if register.line_user_id in line_user_id_and_mobile_dict %}
+                                            {% set mobile = line_user_id_and_mobile_dict[register.line_user_id] %}
+                                            {% if mobile in mobile_and_member_dict %}
+                                                {% set member = mobile_and_member_dict[mobile] %}
+                                                {% if member.status == MemberStatus.NORMAL %}
+                                                    {% set role = '會員' %}
+                                                {% elif member.status == MemberStatus.ASSOCIATE %}
+                                                    {% set role = '準會員' %}
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endif %}
+                                        {{ role }}
+                                    </td>
+                                    <td>
+                                        {# 報名狀態 #}
+                                        <div class="switch switch-sm switch-primary"><input class="flag_register" type="checkbox" value="1" {{ 'checked' if register.flag_register }} data-plugin-ios-switch/></div>
+                                    </td>
+                                    <td>{{ register.create_datetime }}</td> {# 報名時間 #}
+                                    <td>
+                                        {# 操作 #}
+                                        <a href="#" title="推播訊息" class="btn_message" data-register_id="{{ register.id }}"><i class="fas fa-envelope"></i> 推播訊息</a><br/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" style="padding: 0 0;"></td>
+                                    <td colspan="7" class="" style="padding: 0 0;">
+                                        <div class="able-responsive collapse" id="register-{{ register['id'] }}">
+                                            <div class="form-group row pb-3 pt-3">
+                                                <div class="col-lg-12"><textarea name="remark" class="form-control form-control-sm" placeholder="備註" rows="3"></textarea></div>
+                                            </div>
+                                            <div class="form-group row pb-3 pt-3">
+                                                <label class="col-lg-4 control-label text-lg-right">卡號/匯款帳號後四碼</label>
+                                                <div class="col-lg-8">
+                                                    <input name="payment_remark" value="" autocomplete="off" class="form-control form-control-sm">
+                                                </div>
+                                            </div>
+                                            <div class="form-group row pb-3">
+                                                <label class="col-lg-2 control-label text-lg-right"></label>
+                                                <div class="col-lg-4">
+                                                    <input name="payment_method" value="{{ event.start_datetime if event.start_datetime else '' }}" pattern="yyyy-mm-dd" autocomplete="off" class="form-control form-control-sm">
+                                                </div>
+        <label class="col-lg-2 control-label text-lg-right" for="end_datetime">收款時間</label>
+        <div class="col-lg-4">
+          <input id="end_datetime" name="end_datetime" value="" pattern="yyyy-mm-dd" autocomplete="off" class="form-control form-control-sm" data-plugin-datepicker data-plugin-options='{"format": "yyyy-mm-dd"}'>
+        </div>
+      </div>
+                                            <div class="form-group row pb-3">
+
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal_message" tabindex="-1" aria-hidden="true"> <!-- 推播訊息 Modal -->
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">請輸入推播訊息</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div id="message_history" class="col-12"></div>
+                        <div class="col-12">
+                            <textarea id="message" class="form-control" rows="5"></input>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <span id="alert_message" style="display: none;" class="text-danger">請輸入推播訊息</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button id="btn_send_message" type="button" class="btn btn-primary">儲存</button>
+                </div>
+            </div>
+        </div>
+    </div> <!-- End-推播訊息 Modal -->
+
+    <script src="/static/vendor/axios/0.27.2/axios.min.js"></script>
+    <script src="/static/vendor/jquery-loading-overlay/2.1.7/loadingoverlay.js"></script>
+    <script type="application/javascript">
+        (function ($) {
+            let register_id = '';
+            $('.btn_message').on('click', function () {
+                //推播 Modal
+                register_id = $(this).data('register_id');
+                $('#message').val('');
+                $('#message_history').html('');
+                $('#alert_message').hide();
+                axios.post('/dashboard/user/event/ajax-find-message-by-register-id', {'register_id': register_id}).then(function (response) {
+                    $.each(response.data.message_list, function(index, element) {
+                        let item = `<span style="font-weight: bold;">${element.create_datetime}</span><div>${element.message}</div><hr style="border: 1px solid black;margin: 0 0 10px 0;"/>`;
+                        $('#message_history').append(item);
+                    });
+                    $('#modal_message').modal('show');
+                });
+            });
+
+            $('#btn_send_message').on('click', function () {
+                //推播按鈕
+                $('#alert_message').hide();
+                let message = $('#message').val();
+                if(!message) {
+                    $('#alert_message').show();
+                    return
+                }
+                $('#modal_message').modal('hide');
+                $.LoadingOverlay("show");
+                axios.post('/dashboard/user/event/ajax-send-message', {'register_id': register_id, 'message': message}).then(function (response) {
+                    $.LoadingOverlay("hide");
+                    if(response.data.result) {
+                        notify_success('推播成功');
+                    } else {
+                        notify_error(response.data.message);
+                    }
+                });
+            });
+
+            $('.flag_register').on('change', function (){
+                console.log($(this).is(':checked'));
+            });
+
+        }).apply(this, [jQuery]);<!-- End-Document_Ready -->
+    </script>
+{% endblock %}
+
+

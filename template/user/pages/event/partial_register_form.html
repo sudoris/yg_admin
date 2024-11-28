@@ -1,0 +1,136 @@
+<div id="app">
+  <form id="event-form" action="{{ action }}" enctype="multipart/form-data" class="form-horizontal form-bordered" method="post">
+    <input name="family_list" type="hidden">
+    <input name="guest_list" type="hidden">
+    <div  class="card-body">
+      <div class="form-group row pb-3">
+        <label class="col-lg-2 control-label text-lg-right pt-2" for="name">會員姓名</label>
+        <div class="col-lg-10">
+          <input id="name" name="name" value="{{ member.name if member.name else '' }}" placeholder="會員姓名" class="form-control-plaintext" data-plugin-maxlength min="1" maxlength="50" readonly>
+        </div>
+      </div>
+      <div class="form-group row pb-3">
+        <label class="col-lg-2 control-label text-lg-right pt-2" for="no">會籍編號</label>
+        <div class="col-lg-10">
+          <input id="no" name="no" value="{{ member.no if member.no else '' }}" placeholder="會籍編號" class="form-control-plaintext" data-plugin-maxlength min="1" maxlength="50" readonly>
+        </div>
+      </div>
+      <div class="form-group row pb-3">
+        <label class="col-lg-2 control-label text-lg-right pt-2" for="card_no">會員卡號</label>
+        <div class="col-lg-10">
+          <input id="card_no" name="card_no" value="{{ register_primary.card_no if register_primary.card_no else '' }}" placeholder="會員卡號" class="form-control-plaintext" data-plugin-maxlength min="1" maxlength="50" readonly>
+        </div>
+      </div>
+      <div class="form-group row pb-3">
+        <label class="col-lg-2 control-label text-lg-right pt-2">被邀請人（有會籍）</label>
+        <div class="col-lg-10">
+          {% for register_family in register_family_list %}  
+          <div v-for="(family, index) in familyList" :key="'family_' + index" class="form-group row">
+                
+                <div class="col-7">
+                    <select v-model="familyList[index].myFamilyIndex" class="form-select" required>
+                        <option value="" disabled>被邀請人</option>
+                        {% for my_family in my_family_list %}
+                        <option value="{{ loop.index }}" {{ 'selected' if register_family.card_no == my_family.cardNo else '' }}>{{ my_family.name }} {{ my_family.cardNo }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-3">
+                    <select v-model="familyList[index].status" class="form-select" required>
+                        <option value="" disabled>報名狀態</option>
+                        <option value="ACCEPT" {{ 'selected' if register_family.status == 'ACCEPT' else '' }}>正取</option>
+                        <option value="WAITING" {{ 'selected' if register_family.status == 'WAITING' else '' }}>備取</option>
+                    </select>
+                </div>
+                <div class="col-2">
+                  <div class="mt-1"><button @click="deleteFamily(index)" type="button" class="btn btn-danger btn-block">刪除</button></div>
+                </div>
+                
+            </div>
+            {% endfor %}
+            <button @click="addFamily" type="button" class="btn mt-3"><i class="fas fa-plus" style="font-size: 2rem;color: black;"></i></button>
+        </div>
+    </div>
+      <div class="form-group row pb-3">
+        <label class="col-lg-2 control-label text-lg-right pt-2">被邀請人（無會籍）</label>
+        <div class="col-lg-10">
+          {% for register_guest in register_guest_list %}
+                <div v-for="(guest, index) in guestList" :key="'guest_' + index" class="form-group row">
+                    
+                    <div class="col-7">
+                        <input v-model="guestList[index].name" type="text" value="{{ register_guest.name if register_guest.name else '' }}" placeholder="姓名" class="form-control" data-plugin-maxlength required min="1" maxlength="50">
+                    </div>
+                    <div class="col-3">
+                        <select v-model="guestList[index].status" class="form-select" required>
+                            <option value="" disabled>報名狀態</option>
+                            <option value="ACCEPT" {{ 'selected' if register_guest.status == 'ACCEPT' else '' }}>正取</option>
+                            <option value="WAITING" {{ 'selected' if register_guest.status == 'WAITING' else '' }}>備取</option>
+                        </select>
+                    </div>
+                    <div class="col-2">
+                        <div class="mt-1"><button @click="deleteGuest(index)" type="button" class="btn btn-danger btn-block">刪除</button></div>
+                    </div>
+                    
+                </div>
+                {% endfor %}  
+            <button @click="addGuest" type="button" class="btn mt-3"><i class="fas fa-plus" style="font-size: 2rem;color: black;"></i></button>
+        </div>
+    </div>
+    </div>
+    <footer class="card-footer text-left mb-5">
+      <label class="col-lg-2"></label>
+      <button id="btn_save" @click="save" type="button" class="btn btn-primary">儲存</button>
+    </footer>
+  </form>
+</div>
+<script src="/static/vendor/vue2/2.7.8/vue.js"></script>
+<script src="/static/vendor/jquery-loading-overlay/2.1.7/loadingoverlay.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/embed@latest"></script>
+<script src="/static/vendor/editorjs/image/bundle.js?20221226"></script>
+<script src="/static/vendor/editorjs/hyperlink/bundle.js"></script>
+<script src="/static/vendor/editorjs/text-color/2.0.3/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/list@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/paragraph@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/raw@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/underline@latest"></script>
+
+<link rel="stylesheet" href="/static/vendor/jquery-ui-timepicker/jquery-ui-timepicker-addon.css"/>
+<script src="/static/vendor/jquery-ui-timepicker/jquery-ui-timepicker-addon.js"></script>
+<script src="/static/vendor/jquery-ui-timepicker/i18n/jquery-ui-timepicker-addon-i18n.js"></script>
+<script src="/static/vendor/jquery-ui-timepicker/jquery-ui-sliderAccess.js"></script>
+
+<script type="application/javascript">
+  (function ($) {
+
+      let editor = null;
+      let editor_fee = null;
+      const ImageTool = window.ImageTool;
+      const Embed = window.Embed;
+
+      let vue = new Vue({
+          el: "#app",
+          delimiters: ['<%', '%>'],
+          data: {
+            familyList: JSON.parse('{{ family_list | safe }}'),
+            guestList: JSON.parse('{{ guest_list | safe }}')
+          },
+          watch: {},
+          computed: {},
+          methods: {
+              save: function () {
+                  $('input[name=family_list]').val(JSON.stringify(this.familyList));
+                  $('input[name=guest_list]').val(JSON.stringify(this.guestList));
+                  $.LoadingOverlay("show");
+                  $('#event-form').submit();
+              }, 
+          },
+          components: {
+
+          }
+      });
+  }).apply(this, [jQuery]);<!-- End-Document_Ready -->
+</script>
+

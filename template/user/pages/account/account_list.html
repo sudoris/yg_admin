@@ -1,0 +1,114 @@
+
+{% set active_menu = 'account' %}
+{% extends "user/basic_layout/user_basic_layout.html" %}
+
+{% block js_script %}
+<script type="application/javascript">
+    (function($) {
+        'use strict';
+        let current_url = window.location.href;
+        let url = new URL(current_url);
+        let result = url.searchParams.get('result');
+        let message = url.searchParams.get('message');
+        if(result) {
+            make_success_notify(message);
+        } else {
+            notify_error(message);
+        }
+    }).apply(this, [jQuery]);
+</script>
+{% endblock %}
+
+{% block header_meta %}
+    <title>查詢權限管理</title>
+{% endblock %}
+
+{% block content %}
+<section id="app" role="main" class="content-body">
+  <header class="page-header">
+    <h2>查詢權限管理</h2>
+    <div class="right-wrapper text-end">
+      <ol class="breadcrumbs">
+        <li>
+          <a href="/dashboard/user/index">
+            <i class="bx bx-home-alt"></i>
+          </a>
+        </li>
+        <li><span>查詢權限管理</span></li>
+      </ol>
+      <a class="sidebar-right-toggle"></a>
+    </div>
+  </header>
+
+<div class="row">
+  <div class="col">
+    <section class="card card-featured card-featured-primary">
+      <header class="card-header">
+        <h2 class="card-title text-center font-weight-bold">查詢權限管理</h2>
+      </header>
+      <div class="card-body">
+        <form action="/dashboard/user/account/list" method="get">
+            <div class="row mb-2">
+                <div class="col-sm-12 col-md-6 col-lg-3 mb-2">
+                  <input name="name" value="{{ criteria['name'] if 'name' in criteria and criteria['name'] else '' }}" type="text" class="form-control mr-1" placeholder="姓名" autocomplete="off">
+              </div>
+                <div class="col-sm-12 col-md-6 col-lg-3 mb-2">
+                  <input name="email" value="{{ criteria['email'] if 'email' in criteria and criteria['email'] else '' }}" type="text" class="form-control mr-1" placeholder="Email" autocomplete="off">
+              </div>
+                <div class="col-sm-12 col-md-6 col-lg-3 mb-2">
+                    <button type="submit" class="btn btn-primary">查詢</button>
+                </div>
+            </div>
+        </form>
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead>
+            <tr class="">
+              <th class="" style="min-width: 2rem;">#</th>
+              <th class="" style="min-width: 6rem;">
+                帳號
+              </th>
+              <th class="">
+                姓名
+              </th>
+              <th class="" style="min-width: 6rem;">
+                權限
+              </th>
+              <th class="" style="min-width: 4rem;">
+                Email
+              </th>
+              <th class="" style="min-width: 6rem;">
+                帳號情況
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in item_list %}
+              <tr class="">
+                <td class="">{{ (page-1) * row_per_page + loop.index }}</td>
+                <td class="">
+                    {% if 999 in session['user_privilege_id_list'] or 602 in session['user_privilege_id_list'] %}
+                        <a href="/dashboard/user/account/edit/{{ item.id }}">{{ item.account }}</a>
+                    {% else %}
+                        {{ item.account }}
+                    {% endif %}
+                </td>
+                <td class="">{{ item.name }}</td>
+                <td class="">{{ item.privilege }}</td><!-- 權限 -->
+                <td class="">{{ item.email }}</td>
+                <td class="">{{ UserStatus[item.status].value if item.status else '' }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="row pull-right mt-3">
+          {% set base_page_url ='/dashboard/user/account/list' %}
+          {% include 'user/pages/partial/pagination.html' %}
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+</section>
+{% endblock %}

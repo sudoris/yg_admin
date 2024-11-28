@@ -1,0 +1,146 @@
+{% set active_menu = 'apply' %}
+{% extends "user/basic_layout/user_basic_layout.html" %}
+
+{% block js_script %}
+<script src="/static/vendor/axios/axios.min.js"></script>
+<script type="application/javascript">
+    (function($) {
+        'use strict';
+        let current_url = window.location.href;
+        let url = new URL(current_url);
+        let result = url.searchParams.get('result');
+        let message = url.searchParams.get('message');
+        if(result) {
+            make_success_notify(message);
+        } else {
+            notify_error(message);
+        }
+    }).apply(this, [jQuery]);
+</script>
+{% endblock %}
+
+
+{% block header_meta %}
+    <title>Line訪客認證狀態</title>
+{% endblock %}
+
+
+{% block content %}
+<section id="app" role="main" class="content-body">
+    <header class="page-header">
+        <h2>Line訪客認證狀態</h2>
+        <div class="right-wrapper text-end">
+            <ol class="breadcrumbs">
+                <li>
+                    <a href="/dashboard/user/index">
+                        <i class="fa fa-home"></i>
+                    </a>
+                </li>
+                <li><span>會員登入審核</span></li>
+            </ol>
+            <a class="sidebar-right-toggle"></a>
+        </div>
+    </header>
+<div class="row">
+  <div class="col">
+    <section class="card card-featured card-featured-primary">
+      <header class="card-header">
+        <h2 class="card-title text-center font-weight-bold">Line訪客認證狀態</h2>
+      </header>
+      <div class="card-body">
+        <form action="/dashboard/user/line-user/list" method="get">
+            <div class="row mb-2">
+                <div class="col-3">
+                    <input name="no" value="{{ criteria['no'] }}" type="text" class="form-control mr-1" placeholder="會員編號" autocomplete="off">
+                </div>
+                <div class="col-3">
+                    <input name="identify_no" value="{{ criteria['identify_no'] }}" type="text" class="form-control mr-1" placeholder="會員身分證" autocomplete="off">
+                </div>
+                <div class="col-3">
+                    <input name="member_name" value="{{ criteria['member_name'] }}" type="text" class="form-control mr-1" placeholder="會員姓名" autocomplete="off">
+                </div>
+                <div class="col-3">
+                    <input name="display_name" value="{{ criteria['display_name'] }}" type="text" class="form-control mr-1" placeholder="Line暱稱" autocomplete="off">
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-3">
+                    <input name="mobile" value="{{ criteria['mobile'] }}" type="text" class="form-control mr-1" placeholder="會員手機號" autocomplete="off">
+                </div>
+                <div class="col-3">
+                    <input name="mobile_opt" value="{{ criteria['mobile_opt'] }}" type="text" class="form-control mr-1" placeholder="OTP驗證手機號" autocomplete="off">
+                </div>
+                <div class="col-3">
+                    <select name="flag_status" class="form-control">
+                        <option value="">綁定狀態</option>
+                        <option value="1" {{ 'selected' if criteria['flag_status'] == '1' }}>已綁定</option>
+                        <option value="0" {{ 'selected' if criteria['flag_status'] == '0' }}>未綁定</option>
+                    </select>
+                </div>
+                <div class="col-2"><button type="submit" class="btn btn-primary">查詢</button></div>
+            </div>
+        </form>
+        <div class="table-responsive">
+          <table class="table table-responsive-md table-hover table-bordered mb-0">
+            <thead>
+            <tr class="">
+              <th class="" style="width: 10%;">#</th>
+              <th style="width: 10%;">Line頭像</th>
+              <th style="width: 15%;">Line暱稱</th>
+              <th class="">會員姓名</th>
+              <th class="">會員身分證</th>
+              <th class="">會員編號</th>
+              <th class="">會員手機號</th>
+              <th class="">OTP驗證手機號</th>
+              <th style="width: 10%;">加入時間</th>
+              <th class="" style="width: 15%;">狀態</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in item_list %}
+              <tr class="">
+                <td class="align-middle">{{ (page-1)*row_per_page + loop.index }}</td>
+                <td class="align-middle">
+                    {% if item.picture_url %}
+                        <img class="rounded-circle img-fluid" src="{{ item.picture_url }}" style="max-height: 50px;max-width: 50px;"> {# Line頭像 #}
+                    {% endif %}
+                </td>
+                <td class="align-middle">{{ item.display_name if item.display_name else '' }}</td> {# Line暱稱 #}
+                <td class="align-middle">{{ item.member_name if item.member_name else '' }}</td> {# 會員姓名 #}
+                <td class="align-middle">{{ item.identify_no if item.identify_no else '' }}</td> {# 認證身分證 #}
+                <td class="align-middle">{{ item.card_no if item.card_no else '' }}</td> {# 認證卡號 #}
+                <td class="align-middle">{{ item.member_mobile if item.member_mobile else '' }}</td> {# 認證手機 #}
+                <td class="align-middle">{{ item.mobile if item.mobile else '' }}</td> {# OPT驗證號碼 #}
+                <td class="align-middle">{{ item.create_datetime }}</td> {# 加入時間 #}
+                <td class="align-middle">
+                  {% if item.member_id %}
+                      <span class="text-success">已綁定</span><br/>
+                      <a href="/dashboard/user/line-user/reject/{{ item.line_user_id }}/{{ page }}" onclick="return confirm('是否取消綁定');">取消綁定</a>
+                  {% else %}
+                      <span class="text-danger">未綁定</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="row pull-right mt-3">
+            {% set base_page_url ='/dashboard/user/line-user/list' %}
+            {% include 'user/pages/partial/pagination.html' %}
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+</section>
+
+<script src="/static/vendor/jquery-loading-overlay/2.1.7/loadingoverlay.js"></script>
+<script src="/static/vendor/axios/1.1.3/axios.min.js"></script>
+<script type="application/javascript">
+(function ($) {
+
+}).apply(this, [jQuery]);<!-- End-Document_Ready -->
+</script>
+{% endblock %}

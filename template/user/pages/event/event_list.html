@@ -1,0 +1,124 @@
+{% extends "user/basic_layout/user_basic_layout.html" %}
+{% set active_menu = 'event' %}
+
+
+
+{% block js_script %}
+<script type="application/javascript">
+    (function($) {
+        'use strict';
+        let current_url = window.location.href;
+        let url = new URL(current_url);
+        let result = url.searchParams.get('result');
+        let message = url.searchParams.get('message');
+        if(result) {
+            make_success_notify(message);
+        } else {
+            notify_error(message);
+        }
+    }).apply(this, [jQuery]);
+</script>
+<style>
+i.fa, i.fas {
+    width: 1.2em;
+    text-align: center;
+    height: 1.2em;
+    vertical-align: middle;
+}
+</style>
+{% endblock %}
+
+
+{% block header_meta %}
+    <title>活動報名列表</title>
+{% endblock %}
+
+
+{% block content %}
+<section role="main" class="content-body">
+    <header class="page-header">
+        <h2>活動報名列表</h2>
+        <div class="right-wrapper text-end">
+            <ol class="breadcrumbs">
+                <li>
+                    <a href="/dashboard/user/index">
+                        <i class="fa fa-home"></i>
+                    </a>
+                </li>
+                <li><span>活動報名列表</span></li>
+            </ol>
+            <a class="sidebar-right-toggle"></a>
+        </div>
+    </header>
+    <div class="row">
+        <div class="col">
+            <section class="card card-featured card-featured-primary">
+                <header class="card-header">
+                    <h2 class="card-title text-center font-weight-bold">活動報名列表</h2>
+                </header>
+                <div class="card-body">
+                    <form action="/dashboard/user/event/list" method="get">
+                        <div class="row mb-2">
+                            <div class="col-3">
+                                <input name="title" value="{{ criteria['title'] }}" type="text" class="form-control mr-1" placeholder="標題">
+                            </div>
+                            <div class="col-3">
+                                <select name="status" class="form-control mr-1">
+                                    <option value="">全部狀態</option>
+                                    <option value="NORMAL" {% if criteria['status'] == 'NORMAL' %} selected {% endif %}>上架</option>
+                                    <option value="SUSPENDED" {% if criteria['status'] == 'SUSPENDED' %} selected {% endif %}>下架</option>
+                                </select>
+                            </div>
+                            <div class="col-2"><button type="submit" class="btn btn-primary">查詢</button></div>
+                        </div>
+                    </form>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-responsive-md table-hover mb-0">
+                            <thead>
+                            <tr class="">
+                                <th class="" style="width: 5%;">#</th>
+                                <th class="">標題</th>
+                                <th class="" style="width: 20%;">活動日期</th>
+                                <th class="" style="width: 10%;">狀態</th>
+                                <th class="" style="width: 10%;">操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% set success_result = "<i class='fa fa-check btn-success' aria-hidden='true'></i>" %}
+                            {% set fail_result = "<i class='fa fa-times btn-danger' aria-hidden='true'></i>" %}
+                            {% for item in item_list %}
+                                <tr class="">
+                                    <td class="">{{ (page-1)*10 + loop.index }}</td>
+                                    <td class="">
+                                        <a href="/dashboard/user/event/{{ item.id }}/detail/list">{{ item.title }}</a>
+                                    </td>
+                                    <td class="">{{ item.start_date }} ~ {{ item.end_date }}</td>
+                                    <td class="">
+                                        {% if item.status == 'NORMAL' %}
+                                            上架
+                                        {% elif item.status == 'SUSPENDED' %}
+                                            下架
+                                        {% endif %}
+                                    </td>
+                                    <td class="actions">
+                                        <a href="/dashboard/user/event/update/{{ item.id }}" title="編輯資料"><i class="fas fa-edit"></i> 編輯</a>
+                                        <a href="/dashboard/user/event/{{ item.id }}/detail/list"><i class="fas fa-users"></i> 查看報名</a>
+                                        <a href="/dashboard/user/event/copy/{{ item.id }}" onclick="return confirm('是否確定複製 「{{ item.title }}」')"><i class="fas fa-copy"></i> 複製</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row pull-right mt-3">
+                        {% set base_page_url ='/dashboard/user/event/list' %}
+                        {% include 'user/pages/partial/pagination.html' %}
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+

@@ -1,0 +1,55 @@
+<div>
+    {% for content in content_list %}
+        {% if content.type == 'paragraph' %}
+            <p>{{ content.data.text | safe }}</p>
+        {% elif content.type == 'header' %}
+            {% if content.data.level == 1 %}
+                <h1>{{ content.data.text }}</h1>
+            {% elif content.data.level == 2 %}
+                <h2>{{ content.data.text }}</h2>
+            {% elif content.data.level == 3 %}
+                <h3>{{ content.data.text }}</h3>
+            {% elif content.data.level == 4 %}
+                <h4>{{ content.data.text }}</h4>
+            {% elif content.data.level == 5 %}
+                <h5>{{ content.data.text }}</h5>
+            {% elif content.data.level == 6 %}
+                <h6>{{ content.data.text }}</h6>
+            {% endif %}
+        {% elif content.type == 'image' %}
+            {% if content.data.caption.startswith('http') %}
+                {# 圖片連結 #}
+                <figure style="margin-inline-start: 0;margin-inline-end: 0;text-align: center;">
+                    <a href="{{ content.data.caption }}" target="_blank">
+                        <img src="{{ content.data.file.url }}" class="img-fluid" alt="{{ content.data.caption }}">
+                    </a>
+                </figure>
+            {% else %}
+                {# 一般圖片 #}
+                <figure style="margin-inline-start: 0;margin-inline-end: 0;text-align: center;">
+                    <img src="{{ domain }}{{ content.data.file.url }}" class="img-fluid" alt="{{ content.data.caption }}" >
+                    {% if content.data.caption and content.data.caption | length > 0 %}
+                        <figcaption style="color: #999;margin-top: -30px;">
+                            <i class="fas fa-caret-up"></i>
+                            {{ content.data.caption }}
+                        </figcaption>
+                    {% endif %}
+                </figure>
+            {% endif %}
+        {% elif content.type == 'embed' %}
+            <div class="video-container">
+                <iframe frameborder="0" allowfullscreen class="video" src="{{ content.data.embed }}"></iframe>
+            </div>
+        {% elif content.type == 'list' %}
+            <ol style="list-style-type: inherit;">
+                {% for item in content.data['items'] %}
+                    <li>
+                        {{ item | safe }}
+                    </li>
+                {% endfor %}
+            </ol>
+        {% elif content.type == 'raw' %}
+            {{ content.data.html | safe }}
+        {% endif %}
+    {% endfor %}
+</div>

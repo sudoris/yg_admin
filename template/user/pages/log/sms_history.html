@@ -1,0 +1,99 @@
+{% extends "user/basic_layout/user_basic_layout.html" %}
+{% set active_menu = 'log' %}
+
+{% block js_script %}
+<script type="application/javascript">
+    (function($) {
+        'use strict';
+        let current_url = window.location.href;
+        let url = new URL(current_url);
+        let result = url.searchParams.get('result');
+        let message = url.searchParams.get('message');
+        if(result) {
+            make_success_notify(message);
+        } else {
+            notify_error(message);
+        }
+    }).apply(this, [jQuery]);
+</script>
+{% endblock %}
+
+{% block header_meta %}
+    <title>簡訊發送紀錄</title>
+{% endblock %}
+
+
+{% block content %}
+<section id="app" role="main" class="content-body">
+  <header class="page-header">
+    <h2>簡訊發送紀錄</h2>
+    <div class="right-wrapper text-end">
+      <ol class="breadcrumbs">
+        <li>
+          <a href="/dashboard/user/index">
+            <i class="bx bx-home-alt"></i>
+          </a>
+        </li>
+        <li><span>簡訊發送紀錄</span></li>
+      </ol>
+      <a class="sidebar-right-toggle"></a>
+    </div>
+  </header>
+
+  <div class="row">
+    <div class="col">
+      <section class="card card-featured card-featured-primary">
+        <header class="card-header">
+          <h2 class="card-title text-center font-weight-bold">簡訊發送紀錄</h2>
+        </header>
+
+        <div class="card-body">
+            <form action="/dashboard/user/log/sms-history" method="get">
+                <div class="row mb-2">
+                    <div class="col-md-12 col-lg-3 mb-2">
+                        <input name="mobile" value="{{ criteria['mobile'] if 'mobile' in criteria and criteria['mobile'] else '' }}" type="text" class="form-control mr-1" placeholder="手機號碼">
+                    </div>
+                    <div class="col-md-12 col-lg-3 mb-2">
+                        <input name="date_start" value="{{ criteria['date_start'] if 'date_start' in criteria and criteria['date_start'] else '' }}" type="text" class="form-control mr-1" placeholder="日期(開始)" data-plugin-datepicker data-plugin-options='{"format": "yyyy-mm-dd", "autoclose": true}'>
+                    </div>
+                    <div class="col-md-12 col-lg-3 mb-2">
+                        <input name="date_end" value="{{ criteria['date_end'] if 'date_end' in criteria and criteria['date_end'] else '' }}" type="text" class="form-control mr-1" placeholder="日期(結束)" data-plugin-datepicker data-plugin-options='{"format": "yyyy-mm-dd", "autoclose": true}'>
+                    </div>
+                    <div class="col-md-12 col-lg-3 mb-2">
+                        <button type="submit" class="btn btn-primary">查詢</button>
+                    </div>
+                </div>
+            </form>
+
+          <div class="table-responsive">
+            <table class="table table-bordered">
+              <thead>
+              <tr>
+                  <th class="" style="width: 10%;">#</th>
+                  <th class="" style="width: 20%;">手機號碼</th>
+                  <th class="" style="">簡訊內容</th>
+                  <th class="" style="width: 15%;">發送時間</th>
+              </tr>
+              </thead>
+              <tbody>
+              {% for item in item_list %}
+                <tr class="">
+                  <td class="">{{ (page-1)*10 + loop.index }}</td>
+                  <td>{{ item.mobile }}</td>
+                  <td>{{ item.content }}</td>
+                  <td>{{ item.create_datetime }}</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="row pull-right mt-3">
+              {% set base_page_url ='/dashboard/user/log/sms-history' %}
+              {% include 'user/pages/partial/pagination.html' %}
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</section>
+{% endblock %}

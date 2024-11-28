@@ -1,0 +1,104 @@
+{# 設定 RichMenu #}
+{% set active_menu = 'system' %}
+{% extends "user/basic_layout/user_basic_layout.html" %}
+
+{% block header_meta %}
+    <title>{{ '登入' if menu_type == 'login' else '未登入' }}Line RichMenu 設定</title>
+{% endblock %}
+
+{% block js_script %}
+<script type="application/javascript">
+    (function($) {
+        'use strict';
+        let current_url = window.location.href;
+        let url = new URL(current_url);
+        let result = url.searchParams.get('result');
+        let message = url.searchParams.get('message');
+        if(result === '1') {
+            make_success_notify(message);
+        } else {
+            notify_error(message);
+        }
+    }).apply(this, [jQuery]);
+</script>
+{% endblock %}
+
+
+{% block content %}
+    <section id="app" role="main" class="content-body">
+        <header class="page-header">
+            <h2>{{ '登入' if menu_type == 'login' else '未登入' }}Line RichMenu 設定</h2>
+            <div class="right-wrapper text-end">
+                <ol class="breadcrumbs">
+                    <li>
+                        <a href="/dashboard/user/index">
+                            <i class="fa fa-home"></i>
+                        </a>
+                    </li>
+                    <li><span>Line RichMenu 設定</span></li>
+                </ol>
+                <a class="sidebar-right-toggle"></a>
+            </div>
+        </header>
+        <div class="row">
+  <div class="col">
+    <section class="card card-featured card-featured-primary">
+      <header class="card-header">
+        <h2 class="card-title text-center font-weight-bold">{{ '登入' if menu_type == 'login' else '未登入' }}Line RichMenu 設定</h2>
+      </header>
+      <form id="organization-form" action="/dashboard/user/system/richmenu/{{ menu_type }}" enctype="multipart/form-data" class="form-horizontal form-bordered" method="post">
+        <div id="app" class="card-body">
+          <div class="form-group row">
+            <label class="col-lg-2 control-label text-lg-right pt-2" for="cover-image">
+              RichMenu 圖片
+              <br/>
+              (檔案大小請誤超過1mb)
+            </label>
+            <div class="col-lg-6">
+              <img id="logo" src="{{ rich_menu.image_url if rich_menu.image_url else '/static/general/images/default_cover.jpg' }}" class="img-fluid">
+            </div>
+            <div class="col-4">
+              <div class="fileupload fileupload-new" data-provides="fileupload">
+                <div class="input-append">
+                  <div class="uneditable-input">
+                    <i class="fas fa-file fileupload-exists"></i>
+                    <span class="fileupload-preview"></span>
+                  </div>
+                  <span class="btn btn-default btn-file">
+                    <span class="fileupload-exists">變更</span>
+                    <span class="fileupload-new">選擇檔案</span>
+                    <input name="menu" type="file" onchange="document.getElementById('logo').src = window.URL.createObjectURL(this.files[0])"/>
+                  </span>
+                  <a href="#" class="btn btn-default fileupload-exists" data-dismiss="fileupload">移除</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-2 control-label text-lg-right pt-2" for="description">RichMenu設定</label>
+            <div class="col-lg-10">
+              <textarea id="content" name="content" placeholder="設定JSON" class="form-control" rows="20" required data-plugin-maxlength maxlength="3000" >{{ rich_menu.content if rich_menu.content else '' }}</textarea>
+            </div>
+          </div>
+        </div>
+        <footer class="card-footer text-left mb-5">
+          <label class="col-lg-2"></label>
+          <button id="btn_save" type="button" class="btn btn-primary">儲存</button>
+        </footer>
+      </form>
+
+      <script src="/static/vendor/jquery-loading-overlay/2.1.7/loadingoverlay.js"></script>
+      <script type="application/javascript">
+          (function ($) {
+              $('#btn_save').on('click', function () {
+                  $.LoadingOverlay("show");
+                  $('#organization-form').submit();
+              });
+          }).apply(this, [jQuery]);<!-- End-Document_Ready -->
+      </script>
+
+    </section>
+  </div>
+</div>
+    </section>
+{% endblock %}

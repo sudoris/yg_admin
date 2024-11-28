@@ -1,0 +1,102 @@
+<!doctype html>
+<html class="fixed">
+<head>
+    <meta charset="UTF-8">
+    <title>使用者後台登入</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link rel="icon" href="/static/general/images/fav.png">
+    <link type="image/x-icon" href="" rel="icon" />
+    <link type="image/x-icon" href="" rel="shortcut icon" />
+    <link type="image/x-icon" href="" rel="bookmark" />
+
+    <!-- Mobile Metas -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <!-- Web Fonts  -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800|Shadows+Into+Light" rel="stylesheet" type="text/css">
+
+    <!-- Vendor CSS -->
+    <link rel="stylesheet" href="/static/vendor/bootstrap/5.0.2/css/bootstrap.css" />
+    <link rel="stylesheet" href="/static/vendor/animate/animate.compat.css">
+	<link rel="stylesheet" href="/static/vendor/font-awesome/css/all.min.css" />
+	<link rel="stylesheet" href="/static/vendor/boxicons/css/boxicons.min.css" />
+	<link rel="stylesheet" href="/static/vendor/magnific-popup/magnific-popup.css" />
+	<link rel="stylesheet" href="/static/vendor/bootstrap-datepicker/css/bootstrap-datepicker3.css" />
+
+    <link rel="stylesheet" href="/static/porto/css/theme.css" />
+    <link rel="stylesheet" href="/static/porto/css/skins/default.css" />
+    <link rel="stylesheet" href="/static/porto/css/custom.css">
+
+    <script src="/static/vendor/modernizr/modernizr.js"></script>
+    <style type="text/css">
+        @import url(//fonts.googleapis.com/earlyaccess/notosanstc.css);
+        body {
+            font-family:'Noto Sans TC', sans-serif;
+        }
+    </style>
+</head>
+<body>
+<section class="body-sign">
+  <div class="center-sign">
+    <div class="panel card-sign">
+      <div class="card-title-sign mt-3 text-end">
+          <a href="/dashboard/user" class="logo float-start">
+              <img src="/static/general/images/logo.png" title="" alt="" style="height: 50px;"/>
+          </a>
+        <h2 class="title text-uppercase font-weight-bold m-0"><i class="bx bx-user-circle me-1 text-6 position-relative top-5"></i> 使用者登入</h2>
+      </div>
+      <div class="card-body">
+        <form action="/dashboard/user/login" method="post">
+          {% if message %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <strong>{{ message }}</strong>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true" aria-label="Close"></button>
+            </div>
+          {% endif %}
+          <div class="form-group mb-3">
+            <label>帳號</label>
+            <div class="input-group">
+              <input name="account" type="text" class="form-control form-control-lg" />
+              <span class="input-group-text">
+                <i class="bx bx-user text-4"></i>
+              </span>
+            </div>
+          </div>
+          <div class="form-group mb-3">
+            <div class="clearfix">
+              <label class="float-left">密碼</label>
+            </div>
+            <div class="input-group">
+              <input name="password" type="password" class="form-control form-control-lg" />
+              <span class="input-group-text"><i class="bx bx-lock text-4"></i></span>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-12 text-right">
+              <button type="submit" class="btn btn-primary mt-2">登入</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="/static/vendor/jquery/3.6.0/jquery.js"></script>
+<script src="/static/vendor/jquery-browser-mobile/jquery.browser.mobile.js"></script>
+<script src="/static/vendor/popper/umd/popper.min.js"></script>
+<script src="/static/vendor/bootstrap/5.0.2/js/bootstrap.js"></script>
+<script src="/static/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+<script src="/static/vendor/common/common.js"></script>
+<script src="/static/vendor/nanoscroller/nanoscroller.js"></script>
+<script src="/static/vendor/magnific-popup/jquery.magnific-popup.js"></script>
+<script src="/static/vendor/jquery-placeholder/jquery.placeholder.js"></script>
+
+<script src="/static/porto/js/theme.js"></script>
+<script src="/static/porto/js/custom.js"></script>
+<script src="/static/porto/js/theme.init.js"></script>
+
+</body>
+</html>

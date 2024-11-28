@@ -1,0 +1,229 @@
+<div id="app">
+    <form id="form_color" ref="form" action="{{ action }}" enctype="multipart/form-data" class="form-horizontal form-bordered" method="post">
+        <input ref="content" name="content" type="hidden">
+        <div class="card-body">
+            <div class="form-group row pb-3">
+                <label class="col-lg-2 control-label text-lg-right pt-2" for="title">商品名稱<span class="text-danger ms-2">*</span></label>
+                <div class="col-lg-10">
+                    <input v-model="product.title" type="text" id="title" name="title" class="form-control" placeholder="商品名稱">
+                </div>
+            </div>
+            <div class="form-group row pb-3">
+                <label class="col-lg-2 control-label text-lg-right pt-2" for="price">商品價格<span class="text-danger ms-2">*</span></label>
+                <div class="col-lg-4">
+                    <input v-model="product.price" type="number" min="1" step="1" id="price" name="price" class="form-control" placeholder="商品價格">
+                </div>
+                <label class="col-lg-2 control-label text-lg-right pt-2" for="status">狀態</label>
+                <div class="col-lg-4">
+                    <select v-model="product.status" id="status" name="status" class="form-control">
+                        <option value="NORMAL">上架</option>
+                        <option value="SUSPENDED">下架</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row pb-3">
+                <label class="col-lg-2 control-label text-lg-right pt-2" for="category_id">商品分類</label>
+                <div class="col-lg-4">
+                    <select v-model="product.category_id" id="category_id" name="category_id" class="form-control">
+                        {% for category in category_list %}
+                            <option value="{{ category.id }}">{{ category.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row pb-3">
+                <label class="col-lg-2 control-label text-lg-right pt-2">首頁圖片<span class="text-danger ms-2">*</span><br/>建議尺寸 (500x250)</label>
+                <div class="col-lg-10">
+                    <vue-dropzone ref="myVueDropzone" id="dropzone" :options="dropzoneOptions" @vdropzone-success="dropZoneSuccess"></vue-dropzone>
+                </div>
+            </div>
+            <div class="form-group row pb-3">
+                <label class="col-lg-2 control-label text-lg-right pt-2"></label>
+                <div class="col-lg-10">
+                    <div v-for="(productImage, index) in product.productImageList" :key="'image_' + index" class="form-group row">
+                        <div class="col-3">
+                            <img class="img-fluid" :src="productImage.image_url" style="max-height: 150px;">
+                        </div>
+                        <div class="col-3">
+                            <div class="mt-1">
+                                <input v-model="product.productImageList[index].seq" class="form-control" placeholder="排序(小到大)" type="number" min="0" step="1">
+                            </div>
+                            <div class="mt-1"><button @click="deleteProductImage(index)" type="button" class="btn btn-danger btn-block">刪除</button></div>
+                        </div>
+                        <div class="col-6"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row pb-3">
+                <label class="col-lg-2 control-label text-lg-right pt-2">商品規格</label>
+                <div class="col-lg-10">
+                    <div v-for="(specific, index) in product.specificList" :key="'specific_' + index" class="form-group row">
+                        <div class="col-3">
+                            <input v-model="product.specificList[index].title" type="text" class="form-control" placeholder="規格">
+                        </div>
+                        <div class="col-7">
+                            <multiselect v-model="product.specificList[index].colorList" :options="colorList" :multiple="true"></multiselect>
+                        </div>
+                        <div class="col-2">
+                            <div class="mt-1"><button @click="deleteSpecific(index)" type="button" class="btn btn-danger btn-block">刪除</button></div>
+                        </div>
+                    </div>
+                    <button @click="addSpecific" type="button" class="btn mt-3"><i class="fas fa-plus" style="font-size: 2rem;color: black;"></i></button>
+                </div>
+            </div>
+            <div class="form-group row pb-3">
+                <input type="file" ref="file" @change="previewImage" style="display: none" accept="image/png, image/jpeg, image/jpg">
+                <label class="col-lg-2 control-label text-lg-right pt-2">商品圖片<br/>建議尺寸 (500x250)</label>
+                <div class="col-lg-10">
+                    <div v-for="(colorImage, index) in product.colorImageList" :key="'colorImage_' + index" class="form-group row">
+                        <div class="col-3">
+                            <select v-model="product.colorImageList[index].color" class="form-control">
+                                <option value="">請選擇顏色</option>
+                                {% for color in color_list %}
+                                    <option value="{{ color.title }}">{{ color.title }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="mt-1"><button @click="deleteColorImage(index)" type="button" class="btn btn-danger btn-block">刪除</button></div>
+                        </div>
+                        <div class="col-9">
+                            <img class="img-fluid" :src="imageUrl(index)" @click="chooseImage(index)" style="cursor: pointer; max-height: 150px;">
+                        </div>
+                    </div>
+                    <button @click="addColorImage" type="button" class="btn mt-3"><i class="fas fa-plus" style="font-size: 2rem;color: black;"></i></button>
+                </div>
+            </div>
+            <div class="form-group row pb-3">
+                <label for="content" class="col-lg-2 control-label text-lg-right pt-2">商品內容</label>
+                <textarea id="product_content" name="product_content" class="col-lg-10">{{ product_content }}</textarea>
+            </div>
+        </div>
+        <footer class="card-footer text-left mb-5">
+            <label class="col-lg-2"></label>
+            <button @click="save" type="button" class="btn btn-primary">儲存</button>
+        </footer>
+    </form>
+</div>
+<script src="/static/vendor/ckeditor/4.19.1/ckeditor.js?20220913"></script>
+<script src="/static/vendor/vue-dropzone/vue2Dropzone.js"></script>
+<link rel="stylesheet" href="/static/vendor/vue-dropzone/vue2Dropzone.min.css">
+<script src="/static/vendor/vue2/2.7.8/vue.js"></script>
+<script src="/static/vendor/axios/0.27.2/axios.min.js"></script>
+<script src="/static/vendor/jquery-loading-overlay/2.1.7/loadingoverlay.js"></script>
+<script src="https://unpkg.com/vue-multiselect@2.1.6"></script>
+<link rel="stylesheet" href="https://unpkg.com/vue-multiselect@2.1.6/dist/vue-multiselect.min.css">
+<script type="application/javascript">
+    (function ($) {
+
+        Vue.use(vue2Dropzone);
+        let vue = new Vue({
+            el: "#app",
+            delimiters: ['<%', '%>'],
+            data: {
+                targetFragmentIndex: 0,
+                product: JSON.parse('{{ product | safe }}'),
+                colorList: JSON.parse('{{ color_list_json | safe }}'),
+                dropzoneOptions: {
+                    url: '/dashboard/user/product/ajax-upload-file',
+                    maxFilesize: 512,
+                    thumbnailWidth: 100,
+                    thumbnailHeight: 100,
+                    acceptedFiles: 'image/jpeg,image/jpg,image/png',
+                }
+            },
+            mounted: function () {
+                CKEDITOR.replace("product_content", {
+                    height: '500px'
+                });
+                CKEDITOR.on('dialogDefinition', function (ev) {
+                    var dialogName = ev.data.name;
+                    var dialogDefinition = ev.data.definition;
+                    var editorO = ev.data.definition.dialog.getParentEditor();
+                    if (dialogName == 'image' || dialogName == 'image2') {
+                        var infoTab = dialogDefinition.getContents('info');
+                        if (dialogName == 'image') {
+                            infoTab.remove('txtHeight');
+                            infoTab.remove('ratioLock');
+                        } else {
+                            infoTab.remove('height');
+                            infoTab.remove('lock');
+                        }
+                    }
+                });
+            },
+            watch: {},
+            computed: {},
+            methods: {
+                addSpecific: function () {
+                    this.product.specificList.push({'title': '', 'colorList': []});
+                },
+                deleteSpecific: function (index) {
+                    let specificList = this.product.specificList;
+                    specificList.splice(index, 1);
+                    this.product.specificList = specificList;
+                },
+                addColorImage: function () {
+                    this.product.colorImageList.push({'color': '', 'content': '/static/general/images/default_cover.jpg'});
+                },
+                deleteColorImage: function (index) {
+                    let colorImageList = this.product.colorImageList;
+                    colorImageList.splice(index, 1);
+                    this.product.colorImageList = colorImageList;
+                },
+                deleteProductImage: function (index) {
+                    let productImageList = this.product.productImageList;
+                    productImageList.splice(index, 1);
+                    this.product.productImageList = productImageList;
+                },
+                previewImage: function () {
+                    let self = this;
+                    let reader = new FileReader();
+                    reader.readAsDataURL(this.$refs.file.files[0]);
+                    reader.onload = function () {
+                        console.log(reader.result);
+                        self.product.colorImageList[self.targetFragmentIndex].content = reader.result;
+                    };
+                },
+                imageUrl: function (index) {
+                    if(this.product.colorImageList[index].content.startsWith('http')) {
+                        return this.product.colorImageList[index].content;
+                    } else if(this.product.colorImageList[index].content.startsWith('data:')) {
+                        return this.product.colorImageList[index].content;
+                    }
+                    return '/static/general/images/default_cover.jpg';
+                },
+                chooseImage: function (index) {
+                    this.targetFragmentIndex = index;
+                    this.$refs.file.click();
+                },
+                dropZoneSuccess: function (file, response) {
+                    console.log(response);
+                    this.product.productImageList.push({'seq': '', 'image_url': response.image_url});
+                },
+                save: function () {
+                    let title = $('#title').val();
+                    if (!title) {
+                        notify_error('請輸入商品名稱');
+                        return;
+                    }
+                    let price = $('#price').val();
+                    if (price == 0 || price === '') {
+                        notify_error('請輸入商品價格');
+                        return;
+                    }
+                    if(this.product.productImageList.length === 0) {
+                        notify_error('請上傳首頁圖片');
+                        return;
+                    }
+
+                    $.LoadingOverlay("show");
+                    this.$refs.content.value = JSON.stringify(this.product);
+                    this.$refs.form.submit();
+                }
+            },
+            components: {
+                vueDropzone: vue2Dropzone,
+                Multiselect: window.VueMultiselect.default
+            }
+        });
+    }).apply(this, [jQuery]);<!-- End-Document_Ready -->
+</script>

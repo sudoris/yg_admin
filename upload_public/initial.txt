@@ -1,0 +1,2 @@
+預設檔案, 確認 upload_public 資料夾 建立
+upload_public 為上傳檔案存儲路徑

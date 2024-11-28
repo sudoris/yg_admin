@@ -1,0 +1,56 @@
+{% extends "user/basic_layout/user_basic_layout.html" %}
+{% set active_menu = 'member-card' %}
+
+{% block header_meta %}
+    <title>新增會員卡</title>
+{% endblock %}
+
+
+{% block js_script %}
+<script type="application/javascript">
+    (function($) {
+        'use strict';
+        let current_url = window.location.href;
+        let url = new URL(current_url);
+        let result = url.searchParams.get('result');
+        let message = url.searchParams.get('message');
+        if(result) {
+            make_success_notify(message);
+        } else {
+            notify_error(message);
+        }
+    }).apply(this, [jQuery]);
+</script>
+{% endblock %}
+
+
+{% block content %}
+<section role="main" class="content-body">
+    <header class="page-header">
+        <h2>新增會員卡</h2>
+        <div class="right-wrapper text-end">
+            <ol class="breadcrumbs">
+                <li>
+                    <a href="/dashboard/user/index">
+                        <i class="fa fa-home"></i>
+                    </a>
+                </li>
+                <li><span><a href="/dashboard/user/member-card/list">會員卡列表</a></span></li>
+                <li><span>新增會員卡</span></li>
+            </ol>
+            <a class="sidebar-right-toggle"></a>
+        </div>
+    </header>
+    <div class="row">
+        <div class="col">
+            <section class="card card-featured card-featured-primary">
+                <header class="card-header">
+                    <h2 class="card-title text-center font-weight-bold">新增會員卡</h2>
+                </header>
+                {% set action = '/dashboard/user/member-card/create' %}
+                {% include 'user/pages/member_card/partial_member_card_form.html' %}
+            </section>
+        </div>
+    </div>
+</section>
+{% endblock %}

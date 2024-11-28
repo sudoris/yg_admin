@@ -1,0 +1,76 @@
+{% extends "user/basic_layout/user_basic_layout.html" %}
+{% set active_menu = 'event' %}
+
+
+{% block header_meta %}
+    <title>新增活動報名</title>
+{% endblock %}
+
+
+{% block js_script %}
+<script type="application/javascript">
+    (function($) {
+        'use strict';
+        let current_url = window.location.href;
+        let url = new URL(current_url);
+        let result = url.searchParams.get('result');
+        let message = url.searchParams.get('message');
+        if(result) {
+            make_success_notify(message);
+        } else {
+            notify_error(message);
+        }
+    }).apply(this, [jQuery]);
+</script>
+{% endblock %}
+
+
+{% block breadcrumbs %}
+    <header class="page-header">
+        <h2>新增活動報名</h2>
+        <div class="right-wrapper text-end">
+            <ol class="breadcrumbs">
+                <li>
+                    <a href="/dashboard/user/index">
+                        <i class="fa fa-home"></i>
+                    </a>
+                </li>
+                <li><span><a href="/dashboard/user/event/list">活動報名列表</a></span></li>
+                <li><span>新增活動報名</span></li>
+            </ol>
+            <a class="sidebar-right-toggle"></a>
+        </div>
+    </header>
+{% endblock %}
+
+
+{% block content %}
+<section role="main" class="content-body">
+<header class="page-header">
+        <h2>新增活動報名</h2>
+        <div class="right-wrapper text-end">
+            <ol class="breadcrumbs">
+                <li>
+                    <a href="/dashboard/user/index">
+                        <i class="fa fa-home"></i>
+                    </a>
+                </li>
+                <li><span><a href="/dashboard/user/event/list">活動報名列表</a></span></li>
+                <li><span>新增活動報名</span></li>
+            </ol>
+            <a class="sidebar-right-toggle"></a>
+        </div>
+    </header>
+<div class="row">
+  <div class="col">
+    <section class="card card-featured card-featured-primary">
+      <header class="card-header">
+        <h2 class="card-title text-center font-weight-bold">新增報名活動</h2>
+      </header>
+      {% set action = '/dashboard/user/event/create' %}
+      {% include 'user/pages/event/partial_event_form.html' %}
+    </section>
+  </div>
+</div>
+</section>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends "user/basic_layout/user_basic_layout.html" %}
+{% set active_menu = 'news' %}
+
+
+{% block js_script %}
+<script src="/static/vendor/axios/0.27.2/axios.min.js"></script>
+<script type="application/javascript">
+    (function($) {
+        'use strict';
+        let current_url = window.location.href;
+        let url = new URL(current_url);
+        let result = url.searchParams.get('result');
+        let message = url.searchParams.get('message');
+        if(result) {
+            make_success_notify(message);
+        } else {
+            notify_error(message);
+        }
+    }).apply(this, [jQuery]);
+</script>
+{% endblock %}
+
+
+{% block header_meta %}
+    <title>最新消息列表</title>
+{% endblock %}
+
+
+{% block content %}
+<section role="main" class="content-body">
+    <header class="page-header">
+        <h2>最新消息列表</h2>
+        <div class="right-wrapper text-end">
+            <ol class="breadcrumbs">
+                <li>
+                    <a href="/dashboard/user/index">
+                        <i class="fa fa-home"></i>
+                    </a>
+                </li>
+                <li><span>最新消息列表</span></li>
+            </ol>
+            <a class="sidebar-right-toggle"></a>
+        </div>
+    </header>
+<div class="row">
+        <div class="col">
+            <section class="card card-featured card-featured-primary">
+                <header class="card-header">
+                    <h2 class="card-title text-center font-weight-bold">最新消息列表</h2>
+                </header>
+                <div class="card-body">
+                    <form action="/dashboard/user/news/list" method="get">
+                        <div class="row mb-2">
+                            <div class="col-3">
+                                <input name="title" value="{{ criteria['title'] }}" type="text" class="form-control mr-1" placeholder="標題">
+                            </div>
+                            <div class="col-3">
+                                <select name="status" class="form-control mr-1">
+                                    <option value="">全部狀態</option>
+                                    <option value="NORMAL" {% if criteria['status'] == 'NORMAL' %} selected {% endif %}>發布</option>
+                                    <option value="SUSPENDED" {% if criteria['status'] == 'SUSPENDED' %} selected {% endif %}>尚未發布</option>
+                                </select>
+                            </div>
+                            <div class="col-2"><button type="submit" class="btn btn-primary">查詢</button></div>
+                        </div>
+                    </form>
+                    <div class="table-responsive">
+                        <table class="table table-responsive-md table-hover mb-0">
+                            <thead>
+                            <tr class="">
+                                <th class="" style="width: 10%;">#</th>
+                                <th class="">標題</th>
+                                <th class="" style="width: 10%;">顯示日期</th>
+                                <th class="" style="width: 10%;">狀態</th>
+                                <th class="" style="width: 20%;">操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% set success_result = "<i class='fa fa-check btn-success' aria-hidden='true'></i>" %}
+                            {% set fail_result = "<i class='fa fa-times btn-danger' aria-hidden='true'></i>" %}
+                            {% for item in item_list %}
+                                <tr class="">
+                                    <td class="align-middle">{{ (page-1)*10 + loop.index }}</td>
+                                    <td class="align-middle">{{ item.title }}</td>
+                                    <td class="align-middle">{{ item.display_date.strftime('%Y-%m-%d') if item.display_date else '未設定' }}</td>
+                                    <td class="align-middle">
+                                        {% if item.status == 'NORMAL' %}
+                                            發布
+                                        {% elif item.status == 'SUSPENDED' %}
+                                            尚未發布
+                                        {% endif %}
+                                    </td>
+                                    <td class="align-middle actions">
+                                        <a href="/dashboard/user/news/update/{{ item.id }}" title="編輯資料"><i class="fas fa-edit"></i> 編輯</a>
+                                        <a href="/dashboard/user/news/delete/{{ item.id }}/{{ page }}" title="刪除資料" onclick="return confirm('是否確認刪除');"><i class="fas fa-trash-alt"></i> 刪除</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row pull-right mt-3">
+                        {% set base_page_url ='/dashboard/user/news/list' %}
+                        {% include 'user/pages/partial/pagination.html' %}
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+

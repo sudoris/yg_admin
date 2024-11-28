@@ -1,0 +1,84 @@
+<form id="form_banner" action="{{ action }}" class="form-horizontal form-bordered" method="post" enctype="multipart/form-data">
+    <div class="card-body">
+        <div class="form-group row">
+            <label class="col-lg-2 control-label text-lg-right pt-2" for="title">標題<span class="text-danger ms-2">*</span></label>
+            <div class="col-lg-10">
+                <input id="title" name="title" value="{{ banner.title if banner.title else '' }}" placeholder="標題" class="form-control" required data-plugin-maxlength minlength="1" maxlength="50">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-lg-2 control-label text-lg-right pt-2" for="seq">排序(小到大)<span class="text-danger ms-2">*</span></label>
+            <div class="col-lg-4">
+              <input id="seq" name="seq" type="number" min="0" max="9999" step="1" value="{{ banner.seq if banner.seq else '9999' }}" autocomplete="off" class="form-control">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-lg-2 control-label text-lg-right pt-2" for="start_date">上線日期(開始)<span class="text-danger ms-2">*</span></label>
+            <div class="col-lg-4">
+                <input id="start_date" name="start_date" value="{{ banner.start_date if banner.start_date else '' }}" required autocomplete="off" class="form-control" data-plugin-datepicker data-plugin-options='{"format": "yyyy-mm-dd"}'>
+            </div>
+            <label class="col-lg-2 control-label text-lg-right pt-2" for="end_date">上線日期(結束)<span class="text-danger ms-2">*</span></label>
+            <div class="col-lg-4">
+                <input id="end_date" name="end_date" value="{{ banner.end_date if banner.end_date else '' }}" required autocomplete="off" class="form-control" data-plugin-datepicker data-plugin-options='{"format": "yyyy-mm-dd"}'>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-lg-2 control-label text-lg-right pt-2" for="image">
+              圖片<span class="text-danger ms-2">*</span><br/>
+              建議尺寸 600*300
+            </label>
+            <div class="col-lg-6">
+                <img id="image" class="img-fluid" src="{{ banner.image_url if banner.image_url else '' }}" alt="">
+            </div>
+            <div class="col-3">
+                <input name="image" type="file" accept="image/png, image/jpeg" onchange="document.getElementById('image').src = window.URL.createObjectURL(this.files[0])">
+            </div>
+        </div>
+    </div>
+    <footer class="card-footer text-left mb-5">
+        <label class="col-lg-2"></label>
+        <button id="btn_submit" type="button" class="btn btn-primary">儲存</button>
+        <a href="/banner/list" class="btn btn-success ml-1">返回列表</a>
+    </footer>
+</form>
+<style type="text/css">
+    .datepicker{z-index:9999 !important}
+</style>
+<script src="/static/vendor/jquery-loading-overlay/2.1.7/loadingoverlay.js"></script>
+<script type="application/javascript">
+    (function($) {
+
+        $('#btn_submit').on('click', function() {
+
+            if(!$('#image').attr('src')) {
+                notify_error('請選擇圖片');
+                return
+            }
+
+            let title = $('#title').val().trim();
+            if(!title) {
+                notify_error('請輸入標題');
+                return
+            }
+
+            if($('#seq').val() === '') {
+                notify_error('請輸入排序');
+                return
+            }
+
+            if($('#start_date').val() === '') {
+                notify_error('請選擇上線日期(開始)');
+                return
+            }
+
+            if ($('#end_date').val() === '') {
+                notify_error('請選擇上線日期(結束)');
+                return
+            }
+
+            $.LoadingOverlay("show");
+            $("#form_banner").submit();
+        });
+
+    }).apply(this, [jQuery]);
+</script>

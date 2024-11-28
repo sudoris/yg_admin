@@ -1,0 +1,84 @@
+{% extends "user/basic_layout/user_basic_layout.html" %}
+{% set active_menu = 'banner' %}
+
+
+{% block js_script %}
+<script type="application/javascript">
+    (function($) {
+        'use strict';
+        let current_url = window.location.href;
+        let url = new URL(current_url);
+        let result = url.searchParams.get('result');
+        let message = url.searchParams.get('message');
+        if(result) {
+            make_success_notify(message);
+        } else {
+            notify_error(message);
+        }
+    }).apply(this, [jQuery]);
+</script>
+{% endblock %}
+
+{% block header_meta %}
+    <title>輪播圖片列表</title>
+{% endblock %}
+
+
+{% block content %}
+<section role="main" class="content-body">
+    <header class="page-header">
+        <h2>輪播圖片列表</h2>
+        <div class="right-wrapper text-end">
+            <ol class="breadcrumbs">
+                <li><a href="/dashboard/user/index"><i class="fa fa-home"></i></a></li>
+                <li><span>輪播圖片列表</span></li>
+            </ol>
+            <a class="sidebar-right-toggle"></a>
+        </div>
+    </header>
+   <div class="row">
+        <div class="col">
+            <section class="card card-featured card-featured-primary">
+                <header class="card-header">
+                    <h2 class="card-title text-center font-weight-bold">輪播圖片列表</h2>
+                </header>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-responsive-md table-hover mb-0">
+                            <thead>
+                            <tr class="">
+                                <th class="" style="width: 10%;">#</th>
+                                <th class="">標題</th>
+                                <td class="" style="width: 10%;">排序</td>
+                                <td class="" style="width: 15%;">開始時間</td>
+                                <td class="" style="width: 15%;">結束時間</td>
+                                <th class="" style="width: 15%;">操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for item in item_list %}
+                                <tr class="">
+                                    <td class="">{{ loop.index }}</td>
+                                    <td class="">{{ item.title }}</td>
+                                    <td class="">{{ item.seq }}</td>
+                                    <td class="">{{ item.start_date }}</td>
+                                    <td class="">{{ item.end_date }}</td>
+                                    <td class="actions">
+                                        <a href="/dashboard/user/banner/update/{{ item.id }}" title="編輯資料"><i class="fas fa-edit"></i> 編輯</a>
+                                        <a href="/dashboard/user/banner/delete/{{ item.id }}" title="刪除資料" onclick="return confirm('是否確認刪除');"><i class="fas fa-trash-alt"></i> 刪除</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row pull-right mt-3">
+                        {% set base_page_url ='/dashboard/user/banner/list' %}
+                        {% include 'user/pages/partial/pagination.html' %}
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</section>
+{% endblock %}

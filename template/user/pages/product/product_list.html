@@ -1,0 +1,103 @@
+{% extends "user/basic_layout/user_basic_layout.html" %}
+{% set active_menu = 'product' %}
+
+{% block header_meta %}
+    <title>商品列表</title>
+{% endblock %}
+
+{% block js_script %}
+<script type="application/javascript">
+    (function($) {
+        'use strict';
+        let current_url = window.location.href;
+        let url = new URL(current_url);
+        let result = url.searchParams.get('result');
+        let message = url.searchParams.get('message');
+        if(result) {
+            make_success_notify(message);
+        } else {
+            notify_error(message);
+        }
+    }).apply(this, [jQuery]);
+</script>
+{% endblock %}
+
+
+{% block content %}
+<section id="app" role="main" class="content-body">
+    <header class="page-header">
+        <h2>商品列表</h2>
+        <div class="right-wrapper text-end">
+            <ol class="breadcrumbs">
+                <li>
+                    <a href="/dashboard/user/index">
+                        <i class="bx bx-home-alt"></i>
+                    </a>
+                </li>
+                <li><span>商品列表</span></li>
+            </ol>
+            <a class="sidebar-right-toggle"></a>
+        </div>
+    </header>
+
+    <div class="row">
+        <div class="col">
+            <section class="card card-featured card-featured-primary">
+                <header class="card-header">
+                    <h2 class="card-title text-center font-weight-bold">商品列表</h2>
+                </header>
+                <div class="card-body">
+                    <form action="/dashboard/user/product/list" method="get">
+                        <div class="row mb-2">
+                            <div class="col-3">
+                                <input name="title" value="{{ criteria['title'] }}" type="text" class="form-control mr-1" placeholder="商品名稱">
+                            </div>
+                            <div class="col-3">
+                                <select name="category_id" class="form-control mr-1">
+                                    <option value="">全部分類</option>
+                                    {% for category in category_list %}
+                                        <option value="{{ category.id }}" {% if criteria['category_id'] == category.id | string %} selected {% endif %}>{{ category.title }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-2"><button type="submit" class="btn btn-primary">查詢</button></div>
+                        </div>
+                    </form>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered">
+                            <thead>
+                            <tr class="">
+                                <th class="" style="min-width: 2rem;">#</th>
+                                <th class="" style="min-width: 6rem;">商品名稱</th>
+                                <th class="" style="min-width: 3rem;">價格</th>
+                                <th class="" style="min-width: 6rem;">商品分類</th>
+                                <th class="" style="min-width: 4rem;">上架/下架</th>
+                                <th class="" style="min-width: 4rem;">操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for item in item_list %}
+                                <tr class="">
+                                    <td class="">{{ (page-1) * row_per_page + loop.index }}</td>
+                                    <td class="">{{ item.title }}</td> {# 商品名稱 #}
+                                    <td class="">{{ item.price }}</td> {# 價格 #}
+                                    <td class="">{{ category_id_and_title_dict[item.category_id] }}</td> {# 商品分類 #}
+                                    <td class="">{{ ProductStatus[item.status].value if item.status else '' }}</td>
+                                    <td class="actions">{# 操作 #}
+                                        <a href="/dashboard/user/product/update/{{ item.id }}" title="編輯資料"><i class="fas fa-edit"></i> 編輯</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row pull-right mt-3">
+                        {% set base_page_url ='/dashboard/user/product/list' %}
+                        {% include 'user/pages/partial/pagination.html' %}
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</section>
+{% endblock %}

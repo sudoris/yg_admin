@@ -1,0 +1,37 @@
+<ul class="pagination">
+    {% if total_page <= 20 %}
+        {% if total_page > 2 and page != 1 %}
+            <li class="paginate_button page-item"><a href="{{ base_page_url }}/{{ (page - 1) if (page - 1) > 0 else 1 }}?{{ criteria | build_params }}" class="page-link">上一頁</a></li>
+        {% endif %}
+        {% for page_number in range(total_page) %}
+            <li class="paginate_button page-item {{ 'active' if (page_number + 1) ==page else '' }}"><a href="{{ base_page_url }}/{{ page_number + 1}}?{{ criteria | build_params }}" class="page-link">{{ page_number + 1}}</a></li>
+        {% endfor %}
+        {% if total_page > 2 and page != total_page %}
+            <li class="paginate_button page-item"><a href="{{ base_page_url }}/{{ (page + 1) if (page + 1) < total_page else total_page }}?{{ criteria | build_params }}" class="page-link">下一頁</a></li>
+        {% endif %}
+    {% else %}
+        {% if page != 1 %}
+            <li class="paginate_button page-item"><a href="{{ base_page_url }}/{{ (page - 1) if (page - 1) > 0 else 1 }}?{{ criteria | build_params }}" class="page-link">上一頁</a></li>
+        {% endif %}
+        {% if page != 1 and (page - 10) > 0 %}
+            <li class="paginate_button page-item {{ 'active' if page == 1 else '' }}"><a href="{{ base_page_url }}/1?{{ criteria | build_params }}" class="page-link">1</a></li>
+        {% endif %}
+        {% if (page - 10) > 0 and page != 11 %}
+            <li class="paginate_button page-item disabled"><a href="#" class="page-link">...</a></li>
+        {% endif %}
+        {% for page_number in range(total_page) %}
+            {% if (page - page_number) | abs <= 10 %}
+                <li class="paginate_button page-item {{ 'active' if (page_number + 1) ==page else '' }}"><a href="{{ base_page_url }}/{{ page_number + 1}}?{{ criteria | build_params }}" class="page-link">{{ page_number + 1}}</a></li>
+            {% endif %}
+        {% endfor %}
+        {% if (total_page - page) > 11 and page != (total_page - 12) %}
+            <li class="paginate_button page-item disabled"><a href="#" class="page-link">...</a></li>
+        {% endif %}
+        {% if page != total_page and (page + 12) <= total_page %}
+            <li class="paginate_button page-item {{ 'active' if page == total_page else '' }}"><a href="{{ base_page_url }}/{{ total_page }}?{{ criteria | build_params }}" class="page-link">{{ total_page }}</a></li>
+        {% endif %}
+        {% if page != total_page %}
+            <li class="paginate_button page-item"><a href="{{ base_page_url }}/{{ (page + 1) if (page + 1) < total_page else total_page }}?{{ criteria | build_params }}" class="page-link">下一頁</a></li>
+        {% endif %}
+    {% endif %}
+</ul>

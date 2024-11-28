@@ -1,0 +1,106 @@
+{% extends "user/basic_layout/user_basic_layout.html" %}
+{% set active_menu = 'log' %}
+
+{% block js_script %}
+<script type="application/javascript">
+    (function($) {
+        'use strict';
+        let current_url = window.location.href;
+        let url = new URL(current_url);
+        let result = url.searchParams.get('result');
+        let message = url.searchParams.get('message');
+        if(result) {
+            make_success_notify(message);
+        } else {
+            notify_error(message);
+        }
+    }).apply(this, [jQuery]);
+</script>
+{% endblock %}
+
+{% block header_meta %}
+    <title>系統API呼叫紀錄</title>
+{% endblock %}
+
+
+{% block content %}
+<section id="app" role="main" class="content-body">
+  <header class="page-header">
+    <h2>系統API呼叫紀錄</h2>
+    <div class="right-wrapper text-end">
+      <ol class="breadcrumbs">
+        <li>
+          <a href="/dashboard/user/index">
+            <i class="bx bx-home-alt"></i>
+          </a>
+        </li>
+        <li><span>系統API呼叫紀錄</span></li>
+      </ol>
+      <a class="sidebar-right-toggle"></a>
+    </div>
+  </header>
+
+  <div class="row">
+    <div class="col">
+      <section class="card card-featured card-featured-primary">
+        <header class="card-header">
+          <h2 class="card-title text-center font-weight-bold">系統API呼叫紀錄</h2>
+        </header>
+
+        <div class="card-body">
+            <form action="/dashboard/user/log/app-api" method="get">
+                <div class="row mb-2">
+                    <div class="col-md-12 col-lg-4 mb-2">
+                    <input name="date_start" value="{{ criteria['date_start'] if 'date_start' in criteria and criteria['date_start'] else '' }}" type="text" class="form-control mr-1" placeholder="日期(開始)" data-plugin-datepicker data-plugin-options='{"format": "yyyy-mm-dd", "autoclose": true}'>
+                </div>
+                <div class="col-md-12 col-lg-4 mb-2">
+                    <input name="date_end" value="{{ criteria['date_end'] if 'date_end' in criteria and criteria['date_end'] else '' }}" type="text" class="form-control mr-1" placeholder="日期(結束)" data-plugin-datepicker data-plugin-options='{"format": "yyyy-mm-dd", "autoclose": true}'>
+                </div>
+                <div class="col-md-12 col-lg-4 mb-2">
+                    <button type="submit" class="btn btn-primary">查詢</button>
+                </div>
+                </div>
+            </form>
+
+          <div class="table-responsive">
+            <table class="table table-bordered">
+              <thead>
+              <tr>
+                  <th class="" style="min-width: 2rem;">#</th>
+                  <th class="" style="min-width: 2rem;">結果</th>
+                  <th class="" style="min-width: 16rem;">呼叫網址</th>
+                  <th class="" style="min-width: 6rem;">呼叫參數</th>
+                  <th class="" style="min-width: 6rem;">返回訊息</th>
+                  <th class="" style="min-width: 10rem;">呼叫時間</th>
+              </tr>
+              </thead>
+              <tbody>
+              {% for item in item_list %}
+                <tr class="">
+                  <td class="">{{ (page-1)*10 + loop.index }}</td>
+                  <td>
+                      {% if item.result %}
+                          <span class="badge bg-success">成功</span>
+                      {% else %}
+                          <span class="badge bg-danger">失敗</span>
+                      {% endif %}
+                  </td>
+                  <td>{{ item.url }}</td>
+                  <td style="word-break: break-all;">{{ item.request_body }}</td>
+                  <td style="word-break: break-all;">{{ item.response_body }}</td>
+                  <td>{{ item.create_datetime }}</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="row pull-right mt-3">
+              {% set base_page_url ='/dashboard/user/log/app-api' %}
+              {% include 'user/pages/partial/pagination.html' %}
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</section>
+{% endblock %}

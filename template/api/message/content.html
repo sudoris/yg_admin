@@ -1,0 +1,11 @@
+<div>
+    {% for content_item in content_list %}
+        {% if content_item.type == 'TEXT' %}
+            <p>{{ content_item.content }}</p>
+        {% elif content_item.type == 'IMAGE' %}
+            <figure style="margin-inline-start: 0;margin-inline-end: 0;text-align: center;">
+                <img src="{{ domain }}{{ content_item.content }}" class="img-fluid" alt="">
+            </figure>
+        {% endif %}
+    {% endfor %}
+</div>

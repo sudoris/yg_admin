@@ -1,0 +1,193 @@
+{% extends "user/basic_layout/user_basic_layout.html" %}
+{# Ref: https://www.bootdey.com/snippets/view/profile-with-data-and-skills #}
+
+{% block js_script %}
+<script type="application/javascript">
+    (function($) {
+        'use strict';
+        let current_url = window.location.href;
+        let url = new URL(current_url);
+        let result = url.searchParams.get('result');
+        let message = url.searchParams.get('message');
+        if(result) {
+            make_success_notify(message);
+        } else {
+            notify_error(message);
+        }
+    }).apply(this, [jQuery]);
+</script>
+{% endblock %}
+
+{% block header_meta %}
+    <title>會員中心</title>
+{% endblock %}
+
+
+{% block content %}
+    <style type="text/css">
+        html .text-secondary {
+            color: black !important;
+        }
+        hr {
+            opacity: 2 !important;
+        }
+        .progress {
+            background: aliceblue !important;
+        }
+        html .btn-secondary {
+            background-color: grey; !important;
+            border-color: grey; !important;
+        }
+    </style>
+<section id="app" role="main" class="content-body">
+  <header class="page-header">
+    <h2>會員中心</h2>
+    <div class="right-wrapper text-end">
+      <ol class="breadcrumbs">
+        <li>
+          <a href="/index">
+            <i class="bx bx-home-alt"></i>
+          </a>
+        </li>
+        <li><span>會員中心</span></li>
+      </ol>
+      <a class="sidebar-right-toggle"></a>
+    </div>
+  </header>
+
+    <div class="row gutters-sm">
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex flex-column align-items-center text-center">
+                        {% if member_line_info %}
+                            <img src="{{ member_line_info.picture_url }}" alt="{{ member_line_info.display_name }}" class="rounded-circle" width="150">
+                            <div class="mt-3">
+                                <h4 class="fw-bold">{{ member_line_info.display_name }}</h4>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="card mt-3">
+                <div class="card-body">
+                    <div class="d-flex flex-column align-items-center text-center"><h4 class="fw-bold">會員卡</h4></div>
+                    <ul class="list-group list-group-flush">
+                        {% for card in card_list %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+                                <h5 class="font-weight-bold">{{ card.cardType }}</h5><span>{{ card.title }}</span><span>{{ card.cardNo }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card mb-1">
+                <div class="card-body">
+                    <div class="row">
+                        <form action="/dashboard/user/member/detail/{{ member.id }}" method="post">
+                            <textarea name="remark" class="form-control mb-2" rows="5">{{ member.remark if member.remark else '' }}</textarea>
+                            <button class="btn btn-primary" type="submit">送出</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="fw-bold fs-6">姓名</div>
+                        </div>
+                        <div class="col-sm-9 fs-6">{{ member.name }}</div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <h6 class="fw-bold fs-6">身分證字號/護照號碼</h6>
+                        </div>
+                        <div class="col-sm-9 fs-6">{{ member.identify_no }}</div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="fw-bold fs-6">會籍編號</div>
+                        </div>
+                        <div class="col-sm-9 fs-6">{{ member.no }}</div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="fw-bold fs-6">點數 / 到期日</div>
+                        </div>
+                        <div class="col-sm-9 fs-6">{{ points }} / {{ points_expire_date }}</div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="fw-bold fs-6">儲值金</div>
+                        </div>
+                        <div class="col-sm-9 fs-6">{{ balance }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="row gutters-sm">
+                <div class="col-sm-6 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h6 class="d-flex align-items-center mb-3 fw-bold fs-5">興趣點</h6>
+                            <small>帆船活動</small> <span>({{ member.interest_1 }})</span>
+                            <div class="progress mb-3" style="height: 5px">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: {{ member.interest_1 | percent(total_interest) }}%" aria-valuenow="{{ member.interest_1 }}" aria-valuemin="0" aria-valuemax="{{ total_interest }}"></div>
+                            </div>
+                            <small>攝影分享</small> <span>({{ member.interest_2 }})</span>
+                            <div class="progress mb-3" style="height: 5px">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: {{ member.interest_2 | percent(total_interest) }}%" aria-valuenow="{{ member.interest_2 }}" aria-valuemin="0" aria-valuemax="{{ total_interest }}"></div>
+                            </div>
+                            <small>酒類品酩</small> <span>({{ member.interest_3 }})</span>
+                            <div class="progress mb-3" style="height: 5px">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: {{ member.interest_3 | percent(total_interest) }}%" aria-valuenow="{{ member.interest_3 }}" aria-valuemin="0" aria-valuemax="{{ total_interest }}"></div>
+                            </div>
+                            <small>美食饗宴</small> <span>({{ member.interest_4 }})</span>
+                            <div class="progress mb-3" style="height: 5px">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: {{ member.interest_4 | percent(total_interest) }}%" aria-valuenow="{{ member.interest_4 }}" aria-valuemin="0" aria-valuemax="{{ total_interest }}"></div>
+                            </div>
+                            <small>運動健身</small> <span>({{ member.interest_5 }})</span>
+                            <div class="progress mb-3" style="height: 5px">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: {{ member.interest_5 | percent(total_interest) }}%" aria-valuenow="{{ member.interest_5 }}" aria-valuemin="0" aria-valuemax="{{ total_interest }}"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h6 class="d-flex align-items-center mb-3 fw-bold fs-5">興趣點</h6>
+                            <small>音樂藝術</small> <span>({{ member.interest_6 }})</span>
+                            <div class="progress mb-3" style="height: 5px">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: {{ member.interest_6 | percent(total_category) }}%" aria-valuenow="{{ member.interest_6 }}" aria-valuemin="0" aria-valuemax="{{ total_interest }}"></div>
+                            </div>
+                            <small>高爾夫球</small> <span>({{ member.interest_7 }})</span>
+                            <div class="progress mb-3" style="height: 5px">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: {{ member.interest_7 | percent(total_category) }}%" aria-valuenow="{{ member.interest_7 }}" aria-valuemin="0" aria-valuemax="{{ total_interest }}"></div>
+                            </div>
+                            <small>投資理財</small> <span>({{ member.interest_8 }})</span>
+                            <div class="progress mb-3" style="height: 5px">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: {{ member.interest_8 | percent(total_category) }}%" aria-valuenow="{{ member.interest_8 }}" aria-valuemin="0" aria-valuemax="{{ total_interest }}"></div>
+                            </div>
+                            <small>名車鑑賞</small> <span>({{ member.interest_9 }})</span>
+                            <div class="progress mb-3" style="height: 5px">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: {{ member.interest_9 | percent(total_category) }}%" aria-valuenow="{{ member.interest_9 }}" aria-valuemin="0" aria-valuemax="{{ total_interest }}"></div>
+                            </div>
+                            <small>旅遊達人</small> <span>({{ member.interest_10 }})</span>
+                            <div class="progress mb-3" style="height: 5px">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: {{ member.interest_10 | percent(total_category) }}%" aria-valuenow="{{ member.interest_10 }}" aria-valuemin="0" aria-valuemax="{{ total_interest }}"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

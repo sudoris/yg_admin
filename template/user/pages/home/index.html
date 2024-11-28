@@ -1,0 +1,85 @@
+{# User Dashboard #}
+{% extends "user/basic_layout/user_basic_layout.html" %}
+
+{% block header_meta %}
+    <title>首頁</title>
+{% endblock %}
+
+{% block breadcrumbs %}
+    <header class="page-header">
+        <h2>首頁</h2>
+        <div class="right-wrapper text-right">
+            <ol class="breadcrumbs">
+                <li>
+                    <a href="/dashboard/user/index">
+                        <i class="fa fa-home"></i>
+                    </a>
+                </li>
+            </ol>
+            <a class="sidebar-right-toggle"></a>
+        </div>
+    </header>
+{% endblock %}
+
+{% block content %}
+  <section id="app" role="main" class="content-body">
+  <header class="page-header">
+    <h2>首頁</h2>
+    <div class="right-wrapper text-end">
+      <ol class="breadcrumbs">
+        <li>
+          <a href="/dashboard/user/index">
+            <i class="bx bx-home-alt"></i>
+          </a>
+        </li>
+        <li><span>首頁</span></li>
+      </ol>
+      <a class="sidebar-right-toggle"></a>
+    </div>
+  </header>
+  <div class="row">
+      {# User 登入紀錄 ------Start------ #}
+      <div class="col-lg-6">
+        <section class="card card-featured card-featured-primary">
+          <header class="card-header">
+            <div class="card-actions">
+              <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
+              <a href="#" class="card-action card-action-dismiss" data-card-dismiss=""></a>
+            </div>
+            <h2 class="card-title text-center font-weight-bold">管理員登入紀錄</h2>
+          </header>
+          <div class="card-body">
+            <table class="table table-responsive-md table-striped mb-0">
+              <thead>
+              <tr>
+                <th>帳號</th>
+                <th>登入時間</th>
+                <th>結果</th>
+                <th>IP</th>
+              </tr>
+              </thead>
+              <tbody>
+              {% set success_result = "<i class='fa fa-check btn-success' aria-hidden='true'></i>" %}
+              {% set fail_result = "<i class='fa fa-times btn-danger' aria-hidden='true'></i>" %}
+              {% for login_history in user_history_list %}
+                <tr>
+                  <td>{{ login_history.user_account }}</td>
+                  <td>{{ login_history.create_datetime }}</td>
+                  <td>{{ success_result | safe if login_history.result else fail_result | safe }}</td>
+                  <td style="word-break: break-all;">{{ login_history.ip }}</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+      {# User 登入紀錄 ------End------ #}
+    </div>
+  </section>
+
+{% endblock %}
+
+{% block js_script %}
+
+{% endblock %}

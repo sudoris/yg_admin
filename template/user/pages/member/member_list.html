@@ -1,0 +1,101 @@
+{% extends "user/basic_layout/user_basic_layout.html" %}
+{% set active_menu = 'member' %}
+
+{% block js_script %}
+<script type="application/javascript">
+    (function($) {
+        'use strict';
+        let current_url = window.location.href;
+        let url = new URL(current_url);
+        let result = url.searchParams.get('result');
+        let message = url.searchParams.get('message');
+        if(result) {
+            make_success_notify(message);
+        } else {
+            notify_error(message);
+        }
+    }).apply(this, [jQuery]);
+</script>
+{% endblock %}
+
+{% block header_meta %}
+    <title>會員中心</title>
+{% endblock %}
+
+
+{% block content %}
+<section id="app" role="main" class="content-body">
+  <header class="page-header">
+    <h2>會員中心</h2>
+    <div class="right-wrapper text-end">
+      <ol class="breadcrumbs">
+        <li>
+          <a href="/dashboard/user/index">
+            <i class="bx bx-home-alt"></i>
+          </a>
+        </li>
+        <li><span>會員中心</span></li>
+      </ol>
+      <a class="sidebar-right-toggle"></a>
+    </div>
+  </header>
+
+  <div class="row">
+    <div class="col">
+      <section class="card card-featured card-featured-primary">
+        <header class="card-header">
+          <h2 class="card-title text-center font-weight-bold">會員中心</h2>
+        </header>
+
+        <div class="card-body">
+            <form action="/dashboard/user/member/list" method="get">
+                <div class="row mb-2">
+                    <div class="col-md-12 col-lg-3 mb-2">
+                        <input name="name" value="{{ criteria['name'] if 'name' in criteria and criteria['name'] else '' }}" type="text" class="form-control mr-1" placeholder="姓名">
+                    </div>
+                    <div class="col-md-12 col-lg-3 mb-2">
+                        <input name="no" value="{{ criteria['no'] if 'no' in criteria and criteria['no'] else '' }}" type="text" class="form-control mr-1" placeholder="會籍編號">
+                    </div>
+                    <div class="col-md-12 col-lg-3 mb-2">
+                        <input name="identify_no" value="{{ criteria['identify_no'] if 'identify_no' in criteria and criteria['identify_no'] else '' }}" type="text" class="form-control mr-1" placeholder="身分證號碼">
+                    </div>
+                    <div class="col-md-12 col-lg-3 mb-2">
+                        <button type="submit" class="btn btn-primary">查詢</button>
+                    </div>
+                </div>
+            </form>
+
+          <div class="table-responsive">
+            <table class="table table-bordered table-responsive-md table-hover mb-0">
+              <thead>
+              <tr>
+                  <th class="" style="width: 10%;">#</th>
+                  <th class="" style="width: 30%;">姓名</th>
+                  <th class="" style="width: 30%;">會籍編號</th>
+                  <th class="" style="width: 30%;">身分證號碼</th>
+              </tr>
+              </thead>
+              <tbody>
+              {% for item in item_list %}
+                <tr class="">
+                  <td class="">{{ (page-1)*10 + loop.index }}</td>
+                  <td>
+                      <a href="/dashboard/user/member/detail/{{ item.id }}">{{ item.name }}</a>
+                  </td>
+                  <td>{{ item.no }}</td>
+                  <td>{{ item.identify_no }}</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="row pull-right mt-3">
+              {% set base_page_url ='/dashboard/user/member/list' %}
+              {% include 'user/pages/partial/pagination.html' %}
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</section>
+{% endblock %}

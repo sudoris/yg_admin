@@ -1,0 +1,104 @@
+{% extends "user/basic_layout/user_basic_layout.html" %}
+{% set active_menu = 'product' %}
+
+
+{% block header_meta %}
+    <title>商品顏色</title>
+{% endblock %}
+
+
+{% block js_script %}
+<script type="application/javascript">
+    (function($) {
+        'use strict';
+        let current_url = window.location.href;
+        let url = new URL(current_url);
+        let result = url.searchParams.get('result');
+        let message = url.searchParams.get('message');
+        if(result) {
+            make_success_notify(message);
+        } else {
+            notify_error(message);
+        }
+    }).apply(this, [jQuery]);
+</script>
+{% endblock %}
+
+
+{% block content %}
+<section role="main" class="content-body">
+    <header class="page-header">
+        <h2>商品顏色</h2>
+        <div class="right-wrapper text-end">
+            <ol class="breadcrumbs">
+                <li>
+                    <a href="/dashboard/user/index">
+                        <i class="fa fa-home"></i>
+                    </a>
+                </li>
+                <li><span>商品顏色</span></li>
+            </ol>
+            <a class="sidebar-right-toggle"></a>
+        </div>
+    </header>
+    <div class="row">
+        <div class="col">
+            <div id="app">
+                <form id="form_color" ref="form" action="{{ action }}" enctype="multipart/form-data" class="form-horizontal form-bordered" method="post">
+                    <section class="card card-featured card-featured-primary">
+                        <header class="card-header">
+                            <h2 class="card-title text-center font-weight-bold">商品顏色</h2>
+                        </header>
+                        <div class="card-body">
+                            <div v-for="(color, index) in colorList" :key="index" class="form-group row pb-3">
+                                <label class="col-lg-2 control-label text-lg-right pt-2"></label>
+                                <div class="col-4">
+                                    <input v-model="colorList[index].title" name="title" class="form-control" placeholder="顏色" type="text">
+                                </div>
+                                <div class="col-2">
+                                    <input v-model="colorList[index].code" name="code" placeholder="顏色" type="color">
+                                </div>
+                            </div>
+                            <div class="form-group row pb-3">
+                                <label class="col-lg-2 control-label text-lg-right pt-2">
+                                    <button type="button" class="btn mt-3" @click="addColor"><i class="fas fa-plus" style="font-size: 2rem;color: black;"></i></button>
+                                </label>
+                            </div>
+                        </div>
+                        <footer class="card-footer text-left mb-5">
+                            <label class="col-lg-2"></label>
+                            <button @click="save" type="button" class="btn btn-primary">儲存</button>
+                        </footer>
+                    </section>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+<script src="/static/vendor/vue2/2.7.8/vue.js"></script>
+<script src="/static/vendor/axios/0.27.2/axios.min.js"></script>
+<script src="/static/vendor/jquery-loading-overlay/2.1.7/loadingoverlay.js"></script>
+<script type="application/javascript">
+    (function ($) {
+        let vue = new Vue({
+            el: "#app",
+            delimiters: ['<%', '%>'],
+            data: {
+                colorList: JSON.parse('{{ color_list | safe }}')
+            },
+            watch: {},
+            computed: {},
+            methods: {
+                addColor: function () {
+                    this.colorList.push({'title': '', 'code': ''});
+                },
+                save: function () {
+                    $.LoadingOverlay("show");
+                    this.$refs.form.submit();
+                }
+            },
+            components: {}
+        });
+    }).apply(this, [jQuery]);<!-- End-Document_Ready -->
+</script>
+{% endblock %}

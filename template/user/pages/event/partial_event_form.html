@@ -1,0 +1,256 @@
+<div id="app">
+  <form id="event-form" action="{{ action }}" enctype="multipart/form-data" class="form-horizontal form-bordered" method="post">
+    <input name="detail_list" type="hidden">
+    <div  class="card-body">
+      <div class="form-group row pb-3">
+        <label class="col-lg-2 control-label text-lg-right pt-2" for="cover-image">
+          封面<span class="text-danger ms-2">*</span><br/>建議尺寸 (500x250)
+        </label>
+        <div class="col-lg-6">
+          <img id="cover-image" src="{{ event_primary.cover_image if event_primary.cover_image else '/static/general/images/default_cover.jpg' }}" class="img-fluid" style="max-width: 300px; max-height: 300px;">
+        </div>
+        <div class="col-4">
+          <div class="fileupload fileupload-new" data-provides="fileupload">
+            <div class="input-append">
+              <div class="uneditable-input">
+                <i class="fas fa-file fileupload-exists"></i>
+                <span class="fileupload-preview"></span>
+              </div>
+              <span class="btn btn-default btn-file">
+                <span class="fileupload-exists">變更</span>
+                <span class="fileupload-new">選擇檔案</span>
+                <input name="cover_image" type="file" onchange="document.getElementById('cover-image').src = window.URL.createObjectURL(this.files[0])"/>
+              </span>
+              <a href="#" class="btn btn-default fileupload-exists" data-dismiss="fileupload">移除</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row pb-3">
+        <label class="col-lg-2 control-label text-lg-right pt-2" for="title">標題<span class="text-danger ms-2">*</span></label>
+        <div class="col-lg-10">
+          <input id="title" name="title" value="{{ event_primary.title if event_primary.title else '' }}" placeholder="標題" class="form-control" data-plugin-maxlength required min="1" maxlength="50">
+        </div>
+      </div>
+      <div class="form-group row pb-3">
+        <label class="col-lg-2 control-label text-lg-right pt-2" for="status">狀態</label>
+        <div class="col-lg-4">
+          <select name="status" class="form-control">
+            <option value="NORMAL" {{ 'selected' if event_primary.status.name == 'NORMAL' else '' }}>上架</option>
+            <option value="SUSPENDED" {{ 'selected' if event_primary.status.name == 'SUSPENDED' else '' }}>下架</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group row pb-3">
+        <label class="col-lg-2 control-label text-lg-right pt-2" for="flag_top">是否至頂</label>
+        <div class="col-lg-4">
+          <select id="flag_top" name="flag_top" class="form-control">
+            <option value="0" {{ 'selected' if event_primary.flag_top == 0 else '' }}>不至頂</option>
+            <option value="1" {{ 'selected' if event_primary.flag_top == 1 else '' }}>至頂</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group row pb-3">
+        <label class="col-lg-2 control-label text-lg-right pt-2" for="start_date">報名期間-開始</label>
+        <div class="col-lg-4">
+            <input id="start_date" name="start_date" value="{{ event_primary.start_date if event_primary.start_date else '' }}" data-plugin-datepicker data-plugin-options='{"format": "yyyy-mm-dd"}' autocomplete="off" class="form-control">
+        </div>
+        <label class="col-lg-2 control-label text-lg-right pt-2" for="end_date">報名期間-結束<span class="text-danger ms-2">*</span></label>
+        <div class="col-lg-4">
+            <input id="end_date" name="end_date" value="{{ event_primary.end_date if event_primary.end_date else '' }}" data-plugin-datepicker data-plugin-options='{"format": "yyyy-mm-dd"}' autocomplete="off" class="form-control">
+        </div>
+      </div>
+      <div class="form-group row pb-3">
+          <label class="col-lg-2 control-label text-lg-right pt-2" for="interest_id_list">興趣分類<span class="text-danger ms-2">*</span></label>
+          <div class="col-lg-10">
+              <select id="interest_id_list" name="interest_id_list" class="form-control" multiple="multiple" data-plugin-selectTwo>
+                  {% for interest in interest_list %}
+                      {% set ns = namespace(selected=false) %}
+                      {% for selected_interest in selected_interest_list %}
+                          {% if selected_interest.id == interest.id %}
+                              {% set ns.selected = true %}
+                          {% endif %}
+                      {% endfor %}
+                      <option value="{{ interest.id }}" {{ 'selected' if ns.selected }}>{{ interest.title }}</option>
+                  {% endfor %}
+              </select>
+          </div>
+      </div>
+      <div class="form-group row pb-3">
+          <label class="col-lg-2 control-label text-lg-right pt-2">報名活動<span class="text-danger ms-2">*</span></label>
+          <div class="col-lg-10">
+              <div v-for="(detail, index) in detailList" :key="'detail_' + index">
+                  <div v-show="detail.removed === 0" class="form-group row py-2">
+                      <div class="col-6">
+                          <input v-model="detailList[index].location" type="text" class="form-control" placeholder="地點/選單項目">
+                      </div>
+                      <div class="col-6">
+                          <input v-model="detailList[index].time" type="text" class="form-control" placeholder="活動日期與時間">
+                      </div>
+                      <div class="col-3 mt-1">
+                          <input v-model="detailList[index].limit" type="number" min="1" step="1" class="form-control" placeholder="活動人數限制">
+                      </div>
+                      <div class="col-6 mt-1">
+                          <date-picker v-model="detailList[index].end_date" :lang="'zh-tw'" value-type="YYYY-MM-DD" input-class="form-control" placeholder="報名結束日期"></date-picker>
+                      </div>
+                      <div class="col-3 mt-1">
+                          <div class=""><button @click="deleteDetail(index)" type="button" class="btn btn-danger btn-block float-end">刪除</button></div>
+                      </div>
+                  </div>
+              </div>
+              <button @click="addDetail" type="button" class="btn mt-3"><i class="fas fa-plus" style="font-size: 2rem;color: black;"></i></button>
+          </div>
+      </div>
+      <div class="form-group row pb-3">
+        <label class="col-lg-2 control-label text-lg-right pt-2">活動介紹</label>
+        <div class="col-lg-10">
+            <textarea id="content" name="content" class="col-lg-10">{{ event_primary.content if event_primary.content else '' }}</textarea>
+        </div>
+      </div>
+      <div class="form-group row pb-3">
+        <label class="col-lg-2 control-label text-lg-right pt-2">報名方式與費用</label>
+        <div class="col-lg-10">
+            <textarea id="content_fee" name="content_fee" class="col-lg-10">{{ event_primary.content_fee if event_primary.content_fee else '' }}</textarea>
+        </div>
+      </div>
+      <div class="form-group row pb-3">
+        <label class="col-lg-2 control-label text-lg-right pt-2">取消政策</label>
+        <div class="col-lg-10">
+            <textarea id="content_refund" name="content_refund" class="col-lg-10">{{ event_primary.content_refund if event_primary.content_refund else '' }}</textarea>
+        </div>
+      </div>
+    </div>
+    <footer class="card-footer text-left mb-5">
+      <label class="col-lg-2"></label>
+      <button id="btn_save" @click="save" type="button" class="btn btn-primary">儲存</button>
+    </footer>
+  </form>
+</div>
+<script src="/static/vendor/ckeditor/4.19.1/ckeditor.js?20220913"></script>
+<script src="/static/vendor/vue2/2.7.8/vue.js"></script>
+<script src="/static/vendor/jquery-loading-overlay/2.1.7/loadingoverlay.js"></script>
+
+<link rel="stylesheet" href="/static/vendor/jquery-ui-timepicker/jquery-ui-timepicker-addon.css"/>
+<script src="/static/vendor/jquery-ui-timepicker/jquery-ui-timepicker-addon.js"></script>
+<script src="/static/vendor/jquery-ui-timepicker/i18n/jquery-ui-timepicker-addon-i18n.js"></script>
+<script src="/static/vendor/jquery-ui-timepicker/jquery-ui-sliderAccess.js"></script>
+
+<script src="/static/vendor/vue2-datepicker/3.11.0/index.js"></script>
+<script src="/static/vendor/vue2-datepicker/3.11.0/locale/zh-tw.js"></script>
+<link rel="stylesheet" href="/static/vendor/vue2-datepicker/3.11.0/index.css"/>
+
+<script type="application/javascript">
+    (function ($) {
+
+        Vue.use(DatePicker);
+        let vue = new Vue({
+            el: "#app",
+            delimiters: ['<%', '%>'],
+            data: {
+                detailList: JSON.parse('{{ detail_list | safe }}')
+            },
+            mounted: function () {
+                CKEDITOR.replace("content", {
+                    height: '500px'
+                });
+                CKEDITOR.replace("content_fee", {
+                    height: '500px'
+                });
+                CKEDITOR.replace("content_refund", {
+                    height: '500px'
+                });
+                CKEDITOR.on('dialogDefinition', function (ev) {
+                    var dialogName = ev.data.name;
+                    var dialogDefinition = ev.data.definition;
+                    var editorO = ev.data.definition.dialog.getParentEditor();
+                    if (dialogName == 'image' || dialogName == 'image2') {
+                        var infoTab = dialogDefinition.getContents('info');
+                        if (dialogName == 'image') {
+                            infoTab.remove('txtHeight');
+                            infoTab.remove('ratioLock');
+                        } else {
+                            infoTab.remove('height');
+                            infoTab.remove('lock');
+                        }
+                    }
+                });
+            },
+            watch: {},
+            computed: {},
+            methods: {
+                addDetail: function () {
+                    this.detailList.push({id:'', location: '', time: '', limit: '', end_date:'', removed: 0});
+                },
+                deleteDetail: function (index) {
+                    let detailList = this.detailList;
+                    detailList[index].removed = 1;
+                    this.detailList = detailList;
+                },
+                save: function () {
+                    let title = $('input[name=title]').val().trim();
+                    if(!title) {
+                        notify_error('請輸入標題');
+                        return;
+                    }
+
+                    let end_date = $('input[name=end_date]').val().trim();
+                    if(!end_date) {
+                        notify_error('請輸入報名結束日期');
+                        return;
+                    }
+
+                    let image_src = $('#cover-image').attr('src');
+                    if (image_src === '/static/general/images/default_cover.jpg') {
+                        notify_error('請上傳封面');
+                        return;
+                    }
+
+                    if(!$('#interest_id_list').val().length) {
+                        notify_error('請選擇興趣分類');
+                        return;
+                    }
+
+                    if(this.detailList.length === 0) {
+                        notify_error('請建立報名活動');
+                        return;
+                    }
+
+                    let pass = true;
+                    let detailList = this.detailList;
+                    for (let i = 0; i < detailList.length; i++) {
+                        if(detailList[i].removed === 0) {
+                            if(!detailList[i].location) {
+                                pass = false;
+                                break;
+                            }
+                            if(!detailList[i].time) {
+                                pass = false;
+                                break;
+                            }
+                            if(!detailList[i].limit) {
+                                pass = false;
+                                break;
+                            }
+                            if(!detailList[i].end_date) {
+                                pass = false;
+                                break;
+                            }
+                        }
+                    }
+                    if(!pass) {
+                        notify_error('請輸入完整活動場次資料');
+                        return;
+                    }
+
+                    $.LoadingOverlay("show");
+                    $('input[name=detail_list]').val(JSON.stringify(this.detailList));
+                    $('#event-form').submit();
+                }
+            },
+            components: {
+
+            }
+        });
+    }).apply(this, [jQuery]);<!-- End-Document_Ready -->
+</script>
+

@@ -1,0 +1,86 @@
+{% extends "user/basic_layout/user_basic_layout.html" %}
+{% set active_menu = 'member-card' %}
+
+
+{% block js_script %}
+<script type="application/javascript">
+    (function($) {
+        'use strict';
+        let current_url = window.location.href;
+        let url = new URL(current_url);
+        let result = url.searchParams.get('result');
+        let message = url.searchParams.get('message');
+        if(result) {
+            make_success_notify(message);
+        } else {
+            notify_error(message);
+        }
+    }).apply(this, [jQuery]);
+</script>
+{% endblock %}
+
+
+{% block header_meta %}
+    <title>會員卡列表</title>
+{% endblock %}
+
+
+{% block content %}
+<section id="app" role="main" class="content-body">
+  <header class="page-header">
+    <h2>會員卡列表</h2>
+    <div class="right-wrapper text-end">
+      <ol class="breadcrumbs">
+        <li>
+          <a href="/dashboard/user/index">
+            <i class="bx bx-home-alt"></i>
+          </a>
+        </li>
+        <li><span>會員卡列表</span></li>
+      </ol>
+      <a class="sidebar-right-toggle"></a>
+    </div>
+  </header>
+
+  <div class="row">
+    <div class="col">
+      <section class="card card-featured card-featured-primary">
+        <header class="card-header">
+          <h2 class="card-title text-center font-weight-bold">會員卡列表</h2>
+        </header>
+
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-bordered">
+              <thead>
+              <tr>
+                  <th class="" style="width: 10%;">#</th>
+                  <th class="">會員卡片名稱</th>
+                  <th class="" style="width: 10%;">代碼</th>
+                  <th class="" style="width: 10%;">操作</th>
+              </tr>
+              </thead>
+              <tbody>
+              {% for item in item_list %}
+                <tr class="">
+                  <td class="">{{ (page-1)*10 + loop.index }}</td>
+                  <td>{{ item.title }}</td>
+                  <td>{{ item.code }}</td>
+                  <td class="align-middle actions">
+                      <a href="/dashboard/user/member-card/update/{{ item.id }}" title="編輯資料"><i class="fas fa-edit"></i> 編輯</a>
+                  </td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="row pull-right mt-3">
+              {% set base_page_url ='/dashboard/user/member-card/list' %}
+              {% include 'user/pages/partial/pagination.html' %}
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</section>
+{% endblock %}
